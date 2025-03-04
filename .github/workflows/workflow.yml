@@ -44,13 +44,10 @@ jobs:
           
           # 디렉토리 확인 or 생성
           mkdir -p /home/$USER/app/
-          ls -lh /home/$USER/app/
-          
-          # 기존 Java 프로세스 종료
-          pkill -f 'java -jar /home/$USER/app/*.jar' || echo 'No existing process found'
+          ls -lh /home/$USER/app/        
           
           # 새 프로세스 시작
-          java -jar /home/$USER/app/*.jar > /home/$USER/app/app.log 2>&1 &
+          nohup java -jar /home/$USER/app/*.jar > /home/$USER/app/app.log 2>&1 &
           pid=$!
           echo "App started with PID: $pid"
           sleep 5
