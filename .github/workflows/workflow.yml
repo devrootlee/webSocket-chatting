@@ -40,28 +40,33 @@ jobs:
           
           # EC2에서 실행
           ssh -i private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $USER@$HOST "
-          echo 'SSH connection successful'
+            echo 'SSH connection successful'
           
-          # 디렉토리 확인 or 생성
-          mkdir -p /home/$USER/app/
-          ls -lh /home/$USER/app/        
+            # 디렉토리 확인 or 생성
+            mkdir -p /home/$USER/app/
+            ls -lh /home/$USER/app/        
           
-          # 새 프로세스 시작
-          nohup java -jar /home/$USER/app/*.jar > /home/$USER/app/app.log 2>&1 &
-          pid=$!
-          echo "App started with PID: $pid"
-          sleep 5
-          
-          # 프로세스 상태 및 로그 확인
-          if ps -p $pid > /dev/null; then
-          echo 'Process is running'
-          echo 'Last 10 lines of app.log:'
-          tail -n 10 /home/$USER/app/app.log
-          else
-          echo 'Process failed to start'
-          echo 'Last 10 lines of app.log:'
-          tail -n 10 /home/$USER/app/app.log
-          exit 1
-          fi
-          "
+            # 새 프로세스 시작
+            nohup java -jar /home/$USER/app/*.jar > /home/$USER/app/app.log 2>&1 &
+            pid=$!
+            echo "App started with PID: $pid"
+            sleep 5
+            
+            # 프로세스 상태 및 로그 확인
+            if [ -z "$pid" ]; then
+              echo "Failed to capture PID"
+              exit 1
+            else
+              if ps -p $pid > /dev/null 2>&1; then
+                echo "Process is running with PID: $pid"
+                echo "Last 10 lines of app.log:"
+                tail -n 10 /home/$USER/app/app.log
+              else
+                echo "Process failed to start"
+                echo "Last 10 lines of app.log:"
+                tail -n 10 /home/$USER/app/app.log
+                exit 1
+              fi
+            fi
+          EOF
           echo "Deployment finished"
