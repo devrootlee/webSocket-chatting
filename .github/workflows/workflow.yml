@@ -43,15 +43,15 @@ jobs:
           echo 'SSH connection successful'
           
           # 디렉토리 확인 or 생성
-          ls -lh /home/$USER/app/
           mkdir -p /home/$USER/app/
+          ls -lh /home/$USER/app/
           
           # 최신 JAR 파일 찾기
-            JAR_FILE=$(ls -t /home/$USER/app/*.jar | head -n 1)
-            if [ -z "$JAR_FILE" ]; then
-              echo 'No JAR file found in /home/$USER/app/'
-              exit 1
-            fi
+          JAR_FILE=$(ls -t /home/$USER/app/*.jar | head -n 1)
+          if [ -z "$JAR_FILE" ]; then
+            echo 'No JAR file found in /home/$USER/app/'
+            exit 1
+          fi
           
           # 기존 Java 프로세스 종료
           pkill -f 'java -jar /home/$USER/app/*.jar' || echo 'No existing process found'
