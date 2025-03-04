@@ -49,10 +49,10 @@ jobs:
           pkill -f 'java -jar /home/$USER/app/websocket-chatting-1.0.0.jar' || echo 'No existing process found'
           
           # 새 프로세스 시작
-            java -jar /home/$USER/app/websocket-chatting-1.0.0.jar > /home/$USER/app/app.log 2>&1 &
-            pid=$!
-            echo 'App started with PID: $pid'
-            sleep 2
-            ps -p $pid && echo 'Process is running' || echo 'Process failed to start'
+          nohup java -jar /home/$USER/app/websocket-chatting-1.0.0.jar > /home/$USER/app/app.log 2>&1 &
+          pid=$!
+          echo 'App started with PID: $pid'
+          sleep 2
+          ps -p $pid && echo 'Process is running' || echo 'Process failed to start'
           "
           echo "Deployment finished"
