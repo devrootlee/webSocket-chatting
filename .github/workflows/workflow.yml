@@ -46,18 +46,11 @@ jobs:
           mkdir -p /home/$USER/app/
           ls -lh /home/$USER/app/
           
-          # 최신 JAR 파일 찾기
-          JAR_FILE=$(ls -t /home/ubuntu/app/*.jar | head -n 1)
-          if [ -z "$JAR_FILE" ]; then
-            echo 'No JAR file found in /home/$USER/app/'
-            exit 1
-          fi
-          
           # 기존 Java 프로세스 종료
           pkill -f 'java -jar /home/$USER/app/*.jar' || echo 'No existing process found'
           
           # 새 프로세스 시작
-          nohup java -jar "$JAR_FILE" > /home/$USER/app/app.log 2>&1 &
+          nohup java -jar /home/$USER/app/*.jar > /home/$USER/app/app.log 2>&1 &
           pid=$!
           echo "App started with PID: $pid"
           sleep 5
