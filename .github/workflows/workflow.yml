@@ -39,10 +39,12 @@ jobs:
           rsync -avz -e "ssh -i private_key -o StrictHostKeyChecking=no" ./build/libs/*.jar $USER@$HOST:/home/$USER/app/
           
           # EC2에서 실행
-          ssh -i private_key -o StrictHostKeyChecking=no $USER@$HOST "
-            # 기존 프로세스 종료
-            pkill -f 'java -jar' || echo 'No Spring Boot process running',
-
-            # JAR 실행 (백그라운드)
-            nohup java -jar /home/$USER/app/websocket-chatting-1.0.0.jar > /home/$USER/app/app.log 2>&1 &
+          ssh -i private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $USER@$HOST "
+          echo 'SSH connection successful'
+          ls -lh /home/$USER/app/  # 파일 확인
+          java -jar /home/$USER/app/websocket-chatting-1.0.0.jar > /home/$USER/app/app.log 2>&1 &
+          echo 'App started'
+          sleep 2
+          ps aux | grep java || echo 'No Java process found'
           "
+          echo "Deployment finished"
