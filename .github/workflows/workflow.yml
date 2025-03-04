@@ -1,1 +1,48 @@
+name: Deploy Setting
 
+on:
+  push:
+    branches:
+      - main # 이 브랜치에 푸시하면 배포가 실행됨
+
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04 [Beta]
+    steps:
+      # 1. 코드 체크아웃
+      - name: Checkout code
+        uses: actions/checkout@v4
+      # 2. Java setting(러너에서 빌드용)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      # 3. Gradle 로 빌드(# 테스트 제외하고 JAR 생성)
+      - name: Build with Gradle
+        run: | 
+          chmod +x ./gradlew
+          ./gradlew build -x test
+      # 4. SSH 로 EC2에 배포
+      - name: Deploy to EC2
+        env:
+          PRIVATE_KEY: ${{ secrets.SERVER_PEMKEY }}
+          HOST: ${{secrets.SERVER_HOST}}
+          USER: ${{secrets.SERVER_USER}}
+        run: |
+          # SSH 키 설정
+          echo "$PRIVATE_KEY" > private_key
+          chmod 600 private_key
+          
+          # JAR 파일 전송
+          rsync -avz -e "ssh -i private_key -o StrictHostKeyChecking=no" ./build/libs/*.jar $USER@$HOST:/home/$USER/app/
+          
+          # EC2에서 실행
+          ssh -i private_key -o StrictHostKeyChecking=no $USER@$HOST "
+            # 기존 프로세스 종료
+            pkill -f 'java -jar' || echo 'No Spring Boot process running',
+
+            # JAR 실행 (백그라운드)
+            nohup java -jar /home/$USER/app/*.jar > /home/$USER/app/app.log 2>&1 &
+          "
