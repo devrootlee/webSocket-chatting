@@ -47,7 +47,7 @@ jobs:
           ls -lh /home/$USER/app/
           
           # 최신 JAR 파일 찾기
-          JAR_FILE=$(ls -t /home/$USER/app/*.jar | head -n 1)
+          JAR_FILE=$(ls -t /home/ubuntu/app/*.jar | head -n 1)
           if [ -z "$JAR_FILE" ]; then
             echo 'No JAR file found in /home/$USER/app/'
             exit 1
