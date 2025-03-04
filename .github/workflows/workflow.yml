@@ -44,5 +44,5 @@ jobs:
             pkill -f 'java -jar' || echo 'No Spring Boot process running',
 
             # JAR 실행 (백그라운드)
-            nohup java -jar /home/$USER/app/*.jar > /home/$USER/app/app.log 2>&1 &
+            nohup java -jar /home/$USER/app/websocket-chatting-1.0.0.jar > /home/$USER/app/app.log 2>&1 &
           "
