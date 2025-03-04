@@ -41,10 +41,18 @@ jobs:
           # EC2에서 실행
           ssh -i private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $USER@$HOST "
           echo 'SSH connection successful'
-          ls -lh /home/$USER/app/  # 파일 확인
-          java -jar /home/$USER/app/websocket-chatting-1.0.0.jar > /home/$USER/app/app.log 2>&1 &
-          echo 'App started'
-          sleep 2
-          ps aux | grep java || echo 'No Java process found'
+          
+          # 디렉토리 유무 확인
+          ls -lh /home/$USER/app/
+          
+          # 기존 Java 프로세스 종료
+          pkill -f 'java -jar /home/$USER/app/websocket-chatting-1.0.0.jar' || echo 'No existing process found'
+          
+          # 새 프로세스 시작
+            nohup java -jar /home/$USER/app/websocket-chatting-1.0.0.jar > /home/$USER/app/app.log 2>&1 &
+            pid=$!
+            echo 'App started with PID: $pid'
+            sleep 2
+            ps -p $pid && echo 'Process is running' || echo 'Process failed to start'
           "
           echo "Deployment finished"
