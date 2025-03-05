@@ -35,16 +35,16 @@ jobs:
           echo "$PRIVATE_KEY" > private_key
           chmod 600 private_key
           
-          # JAR 파일 전송
+          # 서버에 JAR 파일 전송
           rsync -avz --exclude '*-plain.jar' -e "ssh -i private_key -o StrictHostKeyChecking=no" ./build/libs/*.jar $USER@$HOST:/home/$USER/app/
           
-          # EC2에서 실행
+          # EC2 연결
           ssh -i private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $USER@$HOST << 'EOF'
             echo 'SSH connection successful'
           
             # 디렉토리 확인 or 생성
             mkdir -p /home/$USER/app/
-            ls -lh /home/$USER/app/        
+            ls -lh /home/$USER/app/ 
           
             # 새 프로세스 시작
             nohup java -jar /home/$USER/app/*.jar > /home/$USER/app/app.log 2>&1 &

@@ -3,3 +3,10 @@ spring:
     prefix: classpath:/templates/
     suffix: .html
     check-template-location: true
+
+  data:
+    mongodb:
+      uri: mongodb://ec2-3-27-119-223.ap-southeast-2.compute.amazonaws.com:27017
+      database: websocket_chatting
+      username:
+      password:
