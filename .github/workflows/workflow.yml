@@ -44,7 +44,18 @@ jobs:
           
             # 디렉토리 확인 or 생성
             mkdir -p /home/$USER/app/
-            ls -lh /home/$USER/app/ 
+            ls -lh /home/$USER/app/
+          
+            # 기존 Java 프로세스 종료
+            echo "Finding and killing existing Java process..."
+            pid=$(ps aux | grep '[j]ava -jar /home/'"$USER"'/app/.*\.jar' | awk '{print $2}')
+            if [ -n "$pid" ]; then
+              echo "Killing process with PID: $pid"
+              kill -9 $pid
+              sleep 2  # 프로세스가 완전히 종료될 때까지 대기
+            else
+              echo "No existing Java process found"
+            fi          
           
             # 새 프로세스 시작
             nohup java -jar /home/$USER/app/*.jar > /home/$USER/app/app.log 2>&1 &
