@@ -10,13 +10,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class ChatViewController {
 
     @GetMapping("/")
-    public String loginPage() {
+    public String mainPage() {
         return "index";
     }
 
-    @GetMapping("/signup")
-    public String signUpPage() {
-        return "signup";
+    @GetMapping("/login")
+    public String loginPage() {
+        return "login";
+    }
+
+    @GetMapping("/register")
+    public String registerPage() {
+        return "register";
     }
 
     @MessageMapping("/chat")
