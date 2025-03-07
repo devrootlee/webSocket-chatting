@@ -1,12 +1,29 @@
+server:
+  servlet:
+    session:
+      cookie:
+        same-site: lax
+
 spring:
+  #spring
   thymeleaf:
     prefix: classpath:/templates/
     suffix: .html
     check-template-location: true
-
+#data
   data:
     mongodb:
-      uri: mongodb://ec2-3-27-119-223.ap-southeast-2.compute.amazonaws.com:27017
+      host: ec2-3-27-119-223.ap-southeast-2.compute.amazonaws.com
+      port: 27017
       database: websocket_chatting
-      username:
-      password:
+      authentication-database: admin
+      username: dev.rootlee
+      password: Mylee45!
+      auto-index-creation: true
+
+# 로깅 설정 추가
+logging:
+  level:
+    org.springframework.data.mongodb: DEBUG  # MongoDB 쿼리 로그 활성화
+    org.springframework.data: DEBUG         # Spring Data 전체 디버그 로그 (선택적)
+
