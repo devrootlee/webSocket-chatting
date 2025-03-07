@@ -1,4 +1,4 @@
-package com.example.websocket.chatting.security;
+package com.example.websocket.chatting.common.security;
 
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -14,11 +14,11 @@ public class JwtProvider {
     private final long EXPIRATION_TIME = 1000 * 60 * 60; //1시간
 
     //jwt 생성
-    public String generateJwt(String id) {
+    public String generateJwt(String nickName) {
         Date expirationDate = new Date(System.currentTimeMillis() + EXPIRATION_TIME);
 
         return Jwts.builder()
-                .setSubject(id) //사용자 아이디
+                .setSubject(nickName) //사용자 닉네임
                 .setIssuedAt(new Date()) //발행 시간
                 .setExpiration(expirationDate)
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
@@ -39,8 +39,8 @@ public class JwtProvider {
         }
     }
 
-    //jwt 에서 userId 구하기
-    public String extractUserIdAtJwt(String jwt) {
+    //jwt 에서 nickName 구하기
+    public String extractNickNameAtJwt(String jwt) {
         jwt = jwt.replace("Bearer ", "");
         return Jwts.parserBuilder()
                 .setSigningKey(SECRET_KEY)

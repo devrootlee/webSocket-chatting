@@ -1,0 +1,40 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin-top: 50px;
+}
+
+form {
+    display: inline-block;
+    text-align: left;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    width: 350px; /* 폼 너비 증가 */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box; /* 패딩과 테두리를 포함하여 크기 계산 */
+}
+
+input {
+    width: 100%;
+    padding: 12px; /* 패딩 늘려서 높이 증가 */
+    margin-bottom: 12px; /* 입력칸 간격 증가 */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px; /* 글자 크기 증가 */
+    box-sizing: border-box; /* 패딩과 테두리를 포함하여 크기 계산 */
+}
+
+button {
+    padding: 12px 20px; /* 버튼 크기도 같이 늘려서 균형 맞추기 */
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #4cae4c;
+}

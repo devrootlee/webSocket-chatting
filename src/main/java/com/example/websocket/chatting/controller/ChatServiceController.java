@@ -1,31 +1,36 @@
 package com.example.websocket.chatting.controller;
 
-import com.example.websocket.chatting.model.User;
-import com.example.websocket.chatting.service.UserService;
+import com.example.websocket.chatting.common.util.CommonUtil;
+import com.example.websocket.chatting.dto.ChatServiceRequestDto;
+import com.example.websocket.chatting.service.ChatService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 public class ChatServiceController {
 
-    UserService userService;
+    CommonUtil commonUtil;
+    ChatService chatService;
 
-    public ChatServiceController(UserService userService) {
-        this.userService = userService;
+    public ChatServiceController(CommonUtil commonUtil, ChatService chatService) {
+        this.commonUtil =commonUtil;
+        this.chatService = chatService;
     }
 
-    @GetMapping("/checkUserId")
-    public Map<String,Boolean> checkUserId(@RequestParam String userId) {
-        Map<String,Boolean> result = new HashMap<>();
-        result.put("available", true);
-
-        return result;
+    @GetMapping("/checkNickName")
+    public ResponseEntity<Map<String, Object>> checkNickName(@RequestParam String nickName) {
+        return commonUtil.ApiResponse(chatService.userNickNameCheck(nickName));
     }
 
-    @PostMapping("/signup")
-    public String signUp(@ModelAttribute User user) {
-        return userService.signUp(user).getUserId();
+    @PostMapping("/register")
+    public ResponseEntity<Map<String, Object>> register(@RequestBody ChatServiceRequestDto.register requestDto) {
+        return commonUtil.ApiResponse(chatService.register(requestDto));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, Object>> login(@RequestBody ChatServiceRequestDto.login requestDto) {
+        return commonUtil.ApiResponse(chatService.login(requestDto));
     }
 }
