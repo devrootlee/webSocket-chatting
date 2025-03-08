@@ -43,15 +43,23 @@
             });
 
             const result = await response.json();
-            const data = result.data;
 
-            if (response.ok && data.jwt != null) {
-                alert(nickName + "님 가입을 축하합니다.");
-                window.location.href = '/'; // 성공 시 클라이언트에서 이동
-            } else {
-                alert(result.error);
+            if (!response.ok) { // 200이 아닐 때 (오류 발생)
+                alert(result.error || "회원가입에 실패했습니다.");
                 window.location.href = "/error";
+                return;
             }
+
+            // 200일 때 (성공)
+            const responseNickName = result?.data?.member?.nickName;
+
+            if (responseNickName) {
+                alert(`${responseNickName}님 가입을 축하합니다.`);
+            } else {
+                alert("가입이 완료되었지만 닉네임을 불러오지 못했습니다.");
+            }
+
+            window.location.href = '/'; // 성공 시 클라이언트에서 이동
         }
     </script>
 </head>

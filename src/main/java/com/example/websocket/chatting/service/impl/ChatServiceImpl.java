@@ -4,6 +4,8 @@ import com.example.websocket.chatting.common.security.JwtProvider;
 import com.example.websocket.chatting.dto.ChatServiceRequestDto;
 import com.example.websocket.chatting.model.Member;
 import com.example.websocket.chatting.repository.MemberRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -70,7 +72,10 @@ public class ChatServiceImpl implements com.example.websocket.chatting.service.C
             if (passwordEncoder.matches(requestDto.getPassword(), member.getPassword())) {
                 //jwt 생성
                 String jwt = jwtProvider.generateJwt(member.getNickName());
+
                 result.put("jwt", jwt);
+            } else {
+                result.put("jwt", null);
             }
         } else {
             result.put("jwt", null);
