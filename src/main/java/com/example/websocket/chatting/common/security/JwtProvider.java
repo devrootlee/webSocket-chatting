@@ -4,14 +4,34 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
+import java.util.Base64;
 import java.util.Date;
 
 @Component
 public class JwtProvider {
-    private final String SECRET_KEY = "sadfdsafsdfdsfsd";
+    private SecretKey SECRET_KEY;
+
+    @Value("${jwt.secretkey}")
+    private String secretKeyPlain;
+
+    //jwt 요효시간
     private final long EXPIRATION_TIME = 1000 * 60 * 60; //1시간
+
+    private SecretKey generateSecretKey() {
+        String keyBase64Encoded = Base64.getEncoder().encodeToString(secretKeyPlain.getBytes());
+
+        return Keys.hmacShaKeyFor(keyBase64Encoded.getBytes());
+    }
+
+    public SecretKey getSecretKey() {
+        if (SECRET_KEY == null) SECRET_KEY = generateSecretKey();
+        return SECRET_KEY;
+    }
 
     //jwt 생성
     public String generateJwt(String nickName) {
@@ -21,7 +41,7 @@ public class JwtProvider {
                 .setSubject(nickName) //사용자 닉네임
                 .setIssuedAt(new Date()) //발행 시간
                 .setExpiration(expirationDate)
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .signWith(SignatureAlgorithm.HS256, getSecretKey())
                 .compact();
     }
 
@@ -30,7 +50,7 @@ public class JwtProvider {
         try {
             jwt = jwt.replace("Bearer ", "");
             Jwts.parserBuilder()
-                    .setSigningKey(SECRET_KEY)
+                    .setSigningKey(getSecretKey())
                     .build()
                     .parseClaimsJws(jwt);
             return true;
@@ -43,7 +63,7 @@ public class JwtProvider {
     public String extractNickNameAtJwt(String jwt) {
         jwt = jwt.replace("Bearer ", "");
         return Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY)
+                .setSigningKey(generateSecretKey())
                 .build()
                 .parseClaimsJws(jwt)
                 .getBody()
@@ -53,7 +73,7 @@ public class JwtProvider {
     //jwt 유효기간 확인
     public boolean isJwtExpired(String jwt) {
         Date expiration = Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY)
+                .setSigningKey(getSecretKey())
                 .build()
                 .parseClaimsJws(jwt)
                 .getBody()
