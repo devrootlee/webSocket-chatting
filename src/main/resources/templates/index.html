@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,14 +7,75 @@
     <link rel="stylesheet" href="/css/index.css">
 </head>
 <body>
-<h1>test</h1>
+<div id="authStatus">
+    <!-- 로그인 안된 상태 -->
+    <div id="notLoggedIn" style="display: none;">
+        <h1>test</h1>
+        <button onclick="location.href='/login'">로그인</button>
+        <button onclick="location.href='/register'">회원가입</button>
+    </div>
 
-<!-- 로그인 페이지를 iframe으로 삽입 -->
-<!--<div>-->
-<!--    <iframe src="/login" width="100%" height="500px" frameborder="0"></iframe>-->
-<!--</div>-->
+    <!-- 로그인 된 상태 -->
+    <div id="loggedIn" style="display: none;">
+        <h1 id="welcomeMessage"></h1>
+        <button onclick="chat()">채팅하기</button>
+        <button onclick="logout()">로그아웃</button>
+    </div>
+</div>
 
-<button onclick="location.href='/login'">로그인</button>
-<button onclick="location.href='/register'">회원가입</button>
+<script>
+    // 로그인 상태 확인
+    fetch('/loginStatus', {
+        method: 'GET',
+        headers: {'Content-Type': 'application/json'},
+        credentials: 'include' // 쿠키 포함(jwt)
+    })
+        .then(response => response.json())
+        .then(data => {
+            const notLoggedInDiv = document.getElementById('notLoggedIn');
+            const loggedInDiv = document.getElementById('loggedIn');
+            const welcomeMessage = document.getElementById('welcomeMessage');
+
+            console.log(data);
+            if (data.login) {
+                // 로그인된 상태
+                notLoggedInDiv.style.display = 'none'; // 숨기기
+                loggedInDiv.style.display = 'block';  // 표시하기
+                welcomeMessage.textContent = `${data.nickName} 님 환영합니다`;
+            } else {
+                // 로그인되지 않은 상태
+                notLoggedInDiv.style.display = 'block'; // 표시하기
+                loggedInDiv.style.display = 'none';  // 숨기기
+            }
+        })
+        .catch(error => {
+            console.error("로그인 상태 확인 실패:", error);
+        });
+
+    //로그아웃
+    async function logout() {
+        await fetch('/logout', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
+        });
+        // 메인 페이지로 이동
+        window.location.href = '/';
+    }
+
+    //챗팅하러가기
+    async function chat() {
+        const response = await fetch('/chat', {
+            method: 'GET',
+            headers: {'Content-Type': 'application/json'},
+            credentials: 'include' //쿠키 포함(jwt)
+        });
+
+        if (response.ok) {
+            window.location.href = '/chat'; // 채팅 페이지로 리디렉션
+        } else {
+            alert('접근 권한이 없습니다');
+        }
+    }
+</script>
 </body>
 </html>

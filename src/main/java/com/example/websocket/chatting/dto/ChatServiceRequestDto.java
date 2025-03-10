@@ -19,4 +19,14 @@ public class ChatServiceRequestDto {
 
         private String password;
     }
+
+    @Getter
+    @Setter
+    public static class chatroomCreate {
+        private String name;
+
+        private String description;
+
+        private int maxParticipants;
+    }
 }

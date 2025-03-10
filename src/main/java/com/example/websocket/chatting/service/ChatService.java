@@ -12,4 +12,10 @@ public interface ChatService {
 
     //로그인
     Map<String, Object> login(ChatServiceRequestDto.login requestDto);
+
+    //채팅방 생성
+    Map<String, Object> chatroomCreate(String nickName, ChatServiceRequestDto.chatroomCreate requestDto);
+
+    //채팅방 전체 조회
+    Map<String, Object> chatroom();
 }
