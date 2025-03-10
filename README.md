@@ -14,6 +14,58 @@ Web Socket Chatting
 
 ### - 패키지 구조
 ````
+.
+├── README.md
+└── src
+    └── main
+        ├── java
+        │   └── com
+        │       └── example
+        │           └── websocket
+        │               └── chatting
+        │                   ├── Application.java
+        │                   ├── common
+        │                   │   ├── config
+        │                   │   │   └── WebSocketConfig.java : websocket 설정
+        │                   │   ├── exception
+        │                   │   │   ├── ExceptionController.java : @RestControllerAdvice 설정
+        │                   │   │   └── ValidationCode.java : 커스텀 http 상태코드
+        │                   │   ├── security
+        │                   │   │   ├── EncryptionConfig.java : 사용자 패스워드 암호화
+        │                   │   │   ├── JwtAuthenticationFilter.java : 허용되지 않은 URI 접근 시 jwt 확인하는 필터
+        │                   │   │   ├── JwtProvider.java : jwt 설정(생성, 검증, 저장된 값 확인, 유효기간 확인) 
+        │                   │   │   └── SecurityConfig.java : Spring security 설정
+        │                   │   └── util
+        │                   │       └── CommonUtil.java : util
+        │                   ├── controller
+        │                   │   ├── ChatServiceController.java : chat rest-controller
+        │                   │   └── ChatViewController.java : chat view-controller
+        │                   ├── dto
+        │                   │   └── ChatServiceRequestDto.java : chat-restcontroller requestdto 
+        │                   ├── model
+        │                   │   ├── ChatMessage.java : chat_message model
+        │                   │   ├── ChatRoom.java : chat_room model
+        │                   │   └── Member.java : member model
+        │                   ├── repository
+        │                   │   └── MemberRepository.java : member repository
+        │                   └── service
+        │                       ├── ChatService.java 
+        │                       └── impl
+        │                           └── ChatServiceImpl.java : chat rest-service
+        └── resources
+            ├── application.yml
+            ├── static
+            │   └── css
+            │       ├── chat.css
+            │       ├── index.css
+            │       ├── login.css
+            │       └── register.css
+            └── templates
+                ├── chat.html
+                ├── error.html
+                ├── index.html
+                ├── login.html
+                └── register.html
 ````
 
 
