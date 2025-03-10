@@ -24,12 +24,19 @@ public class ChatViewController {
         return "register";
     }
 
-    @MessageMapping("/chat")
+    @GetMapping("/chat")
+    public String chat() {
+        return "chat";
+    }
+
+    @GetMapping("/chatroom/create")
+    public String chatCreate() {
+        return "chatroom-create";
+    }
+
+    @MessageMapping("/x-chat")
     @SendTo("/topic/messages")
     public ChatMessage sendMessage(ChatMessage message) {
-        System.out.println(message.getSender());
-        System.out.println(message.getContent());
-        System.out.println(message.getType());
         return message;
     }
 }

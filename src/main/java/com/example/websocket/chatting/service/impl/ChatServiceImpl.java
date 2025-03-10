@@ -2,7 +2,9 @@ package com.example.websocket.chatting.service.impl;
 
 import com.example.websocket.chatting.common.security.JwtProvider;
 import com.example.websocket.chatting.dto.ChatServiceRequestDto;
+import com.example.websocket.chatting.model.ChatRoom;
 import com.example.websocket.chatting.model.Member;
+import com.example.websocket.chatting.repository.ChatRoomRepository;
 import com.example.websocket.chatting.repository.MemberRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -19,14 +22,18 @@ public class ChatServiceImpl implements com.example.websocket.chatting.service.C
     private final PasswordEncoder passwordEncoder;
 
     MemberRepository memberRepository;
+    ChatRoomRepository chatRoomRepository;
 
     public ChatServiceImpl(
             JwtProvider jwtProvider,
             PasswordEncoder passwordEncoder,
-            MemberRepository memberRepository) {
+            MemberRepository memberRepository,
+            ChatRoomRepository chatRoomRepository
+    ) {
         this.jwtProvider = jwtProvider;
         this.passwordEncoder = passwordEncoder;
         this.memberRepository = memberRepository;
+        this.chatRoomRepository = chatRoomRepository;
     }
 
     //닉네임 중복 체크
@@ -80,6 +87,32 @@ public class ChatServiceImpl implements com.example.websocket.chatting.service.C
         } else {
             result.put("jwt", null);
         }
+        return result;
+    }
+
+    @Override
+    public Map<String, Object> chatroomCreate(String nickName, ChatServiceRequestDto.chatroomCreate requestDto) {
+        Map<String, Object> result = new HashMap<>();
+
+        ChatRoom chatRoom = ChatRoom.builder()
+                .name(requestDto.getName())
+                .description(requestDto.getDescription())
+                .maxParticipants(requestDto.getMaxParticipants())
+                .nickName(nickName)
+                .build();
+
+        chatRoomRepository.save(chatRoom);
+        result.put("chatRoom", chatRoom);
+        return result;
+    }
+
+    @Override
+    public Map<String, Object> chatroom() {
+        Map<String, Object> result = new HashMap<>();
+
+        List<ChatRoom> chatroomList = chatRoomRepository.findAll();
+        result.put("chatroomList", chatroomList);
+
         return result;
     }
 }

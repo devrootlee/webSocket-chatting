@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/css/chat.css">
+</head>
+<body class="p-6 max-w-md mx-auto">
+<h1>채팅방</h1>
+<p>채팅방 목록</p>
+
+<div class="chat-room-container">
+    <table id="chatroom-list" class="chat-room-table">
+        <thead>
+        <tr>
+            <th>방명</th>
+            <th>인원수</th>
+            <th>방장</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <div id="no-chatroom" class="no-chat-room" style="display: none; text-align: center; padding: 20px;">
+        채팅방이 없습니다
+    </div>
+</div>
+
+<button class="chatroom-create-button" onclick="chatroomCreate()">채팅방 만들기</button>
+
+<script>
+    async function chatroom() {
+        try {
+            const response = await fetch('/chatroom', {
+                method: 'GET',
+                credentials: 'include'
+            });
+            if (!response.ok) throw new Error('서버 응답 오류');
+            const result = await response.json();
+
+            const chatroomListBody = document.querySelector('#chatroom-list tbody');
+            const noChatroom = document.getElementById('no-chatroom');
+
+            if (result.resultCode === 200 && result.data.chatroomList.length > 0) {
+                noChatroom.style.display = 'none';
+                chatroomListBody.innerHTML = '';
+
+                result.data.chatroomList.forEach(room => {
+                    const row = document.createElement('tr');
+                    row.classList.add('chat-room-item');
+
+                    row.innerHTML = `
+                            <td>${room.name}</td>
+                            <td>${room.maxParticipants}명</td>
+                            <td>${room.nickName}</td>
+                        `;
+                    // 클릭 시 REST API 호출 후 이동
+                    row.addEventListener('click', async () => {
+                        try {
+                            const response = await fetch(`/chatroom/${room.id}`, {
+                                method: 'GET',
+                                credentials: 'include'
+                            });
+                            if (!response.ok) throw new Error('채팅방 접속 실패');
+                            const result = await response.json();
+
+                            // 서버 응답에 따라 처리 (예: 성공 시 페이지 이동)
+                            if (result.resultCode === 200) {
+                                window.location.href = `/chatroom/${room.id}`;
+                            } else {
+                                alert('채팅방에 입장할 수 없습니다: ' + result.message);
+                            }
+                        } catch (error) {
+                            console.error('채팅방 접속 오류:', error);
+                            alert('채팅방에 입장하지 못했습니다.');
+                        }
+                    });
+                    chatroomListBody.appendChild(row);
+                });
+            } else {
+                noChatroom.style.display = 'block';
+                chatroomListBody.innerHTML = '';
+            }
+        } catch (error) {
+            console.error('채팅방 정보를 가져오는 데 실패했습니다.', error);
+            alert('채팅방 목록을 불러오지 못했습니다.');
+        }
+    }
+
+    async function chatroomCreate() {
+        try {
+            const response = await fetch('/chatroom/create', {
+                method: 'GET',
+                credentials: 'include'
+            });
+            if (response.ok) {
+                window.location.href = '/chatroom/create';
+            } else {
+                throw new Error('접근 실패');
+            }
+        } catch (error) {
+            alert('접근 권한이 없습니다: ' + error.message);
+        }
+    }
+
+    window.onload = () => chatroom();
+</script>
+</body>
+</html>
