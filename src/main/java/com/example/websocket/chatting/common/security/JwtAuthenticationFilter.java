@@ -27,20 +27,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 쿠키에서 JWT 가져오기
         Cookie[] cookies = request.getCookies();
-        String token = null;
+        String jwt = null;
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if ("jwt".equals(cookie.getName())) {
-                    token = cookie.getValue();
+                    jwt = cookie.getValue();
                     break;
                 }
             }
         }
 
         //token != null && 해당 서버에서 만든 jwt 인지 검증 && jwt 요효기간 확인
-        if (token != null && jwtProvider.validateJwt(token) && !jwtProvider.isJwtExpired(token)) {
+        if (jwt != null && jwtProvider.validateJwt(jwt) && !jwtProvider.isJwtExpired(jwt)) {
             //jwt 저장된 닉네임 확인
-            String nickName = jwtProvider.extractNickNameAtJwt(token);
+            String nickName = jwtProvider.extractNickNameAtJwt(jwt);
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(nickName, null, List.of());
             SecurityContextHolder.getContext().setAuthentication(authentication);

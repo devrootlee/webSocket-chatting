@@ -5,6 +5,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 public class ChatViewController {
@@ -30,8 +31,13 @@ public class ChatViewController {
     }
 
     @GetMapping("/chatroom/create")
-    public String chatCreate() {
+    public String chatroomCreate() {
         return "chatroom-create";
+    }
+
+    @GetMapping("/chatroom")
+    public String chatroom() {
+        return "chatroom";
     }
 
     @MessageMapping("/x-chat")

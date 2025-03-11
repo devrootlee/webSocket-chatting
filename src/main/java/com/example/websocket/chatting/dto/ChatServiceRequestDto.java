@@ -24,9 +24,18 @@ public class ChatServiceRequestDto {
     @Setter
     public static class chatroomCreate {
         private String name;
+    }
 
-        private String description;
+    @Getter
+    @Setter
+    public static class chatroomWebsocket {
+        private String roomId;
+        private String websocketId;
+    }
 
-        private int maxParticipants;
+    @Getter
+    @Setter
+    public static class chatroom {
+        private String roomId;
     }
 }

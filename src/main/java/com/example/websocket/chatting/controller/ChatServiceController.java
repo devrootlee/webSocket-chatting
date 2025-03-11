@@ -4,9 +4,7 @@ import com.example.websocket.chatting.common.util.CommonUtil;
 import com.example.websocket.chatting.dto.ChatServiceRequestDto;
 import com.example.websocket.chatting.service.ChatService;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -36,7 +34,7 @@ public class ChatServiceController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody ChatServiceRequestDto.login requestDto, HttpServletResponse response, HttpSession session) {
+    public ResponseEntity<Map<String, Object>> login(@RequestBody ChatServiceRequestDto.login requestDto, HttpServletResponse response) {
         Map<String, Object> serviceResponse = chatService.login(requestDto);
 
         if (serviceResponse.get("jwt") == null) {
@@ -60,13 +58,20 @@ public class ChatServiceController {
     }
 
     @GetMapping("/loginStatus")
-    public ResponseEntity<Map<String, Object>> loginStatus(@AuthenticationPrincipal String nickName) {//@AuthenticationPrincipal 쿠키값에 있는 jwt 값을 이용하여 저장된 nickName 가져오기
+    public ResponseEntity<Map<String, Object>> loginStatus(@AuthenticationPrincipal String nickName, HttpServletResponse response) {//@AuthenticationPrincipal 쿠키값에 있는 jwt 값을 이용하여 저장된 nickName 가져오기
         //인증된 사용자가 없으면 false
         if (nickName.equals("anonymousUser")) {
-            return ResponseEntity.ok(Map.of("login", false));
+            // 쿠키 삭제
+            Cookie cookie = new Cookie("jwt", null);
+            cookie.setAttribute("JSESSIONID", null);
+            cookie.setPath("/"); // 쿠키의 경로 설정
+            cookie.setMaxAge(0); // 쿠키의 만료 시간을 0으로 설정하여 삭제
+            response.addCookie(cookie);
+
+            return ResponseEntity.ok(Map.of("loginStatus", false));
         }
 
-        return ResponseEntity.ok(Map.of("login", true, "nickName", nickName));
+        return ResponseEntity.ok(Map.of("loginStatus", true, "nickName", nickName));
     }
 
     @PostMapping("/chatroom/create")
@@ -74,8 +79,13 @@ public class ChatServiceController {
         return commonUtil.ApiResponse(chatService.chatroomCreate(nickName, requestDto));
     }
 
-    @GetMapping("/chatroom")
-    public ResponseEntity<Map<String, Object>> chatroom() {
-        return commonUtil.ApiResponse(chatService.chatroom());
+    @GetMapping("/chatroomList")
+    public ResponseEntity<Map<String, Object>> chatroomList() {
+        return commonUtil.ApiResponse(chatService.chatroomList());
+    }
+
+    @GetMapping("/chatroomInfo")
+    public ResponseEntity<Map<String, Object>> chatroomInfo(@RequestParam String roomId) {
+        return commonUtil.ApiResponse(chatService.chatroom(roomId));
     }
 }

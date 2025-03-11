@@ -21,6 +21,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     //MongoDB
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    // Redis Starter
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    // Redis Client: Jedis, Lettuce 중 하나를 선택
+    implementation 'org.springframework.boot:spring-boot-starter-logging'
     //Spring Boot Security(JWT 인증용)
     implementation 'org.springframework.boot:spring-boot-starter-security'
     // JJWT (JWT 생성 및 검증)

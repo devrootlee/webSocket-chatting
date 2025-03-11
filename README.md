@@ -7,6 +7,7 @@ Web Socket Chatting
   - Ubuntu 24.04.1
 - DB
   - MongoDB 7.0.17
+  - Redis
 - CI / CD
   - Github Actions
 - Language

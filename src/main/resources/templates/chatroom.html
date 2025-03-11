@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/css/chatroom.css">
+</head>
+<body>
+<div class="chat-container">
+    <!-- 뒤로가기 버튼 -->
+    <button class="back-btn" onclick="window.history.back();">뒤로가기</button>
+
+    <div class="chat-box" id="chat-box">
+        <!-- 채팅 메시지가 여기에 표시됨 -->
+    </div>
+    <div class="chat-input">
+        <input type="text" id="message" placeholder="메시지를 입력하세요...">
+        <button id="send-btn">전송</button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const roomId = localStorage.getItem("roomId");
+        if (!roomId) {
+            alert("채팅방 ID가 없습니다.");
+            window.location.href = "/chat";
+            return; // 추가: roomId 없으면 여기서 종료
+        }
+
+        console.log("Fetching roomId: " + roomId);
+
+        fetch("/chatroomInfo?roomId=" + roomId, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include"
+        })
+            .then(response => {
+                if (!response.ok) throw new Error("채팅방 조회 실패");
+                return response.json();
+            })
+            .then(data => {
+                console.log("API Response:", data);
+                console.log(roomId);
+
+                const ws = new WebSocket("ws://localhost:8080/chatroom/" + roomId);
+                ws.onopen = () => console.log("WebSocket 연결됨");
+                ws.onmessage = (event) => {
+                    const message = event.data;
+                    if (message.startsWith("websocketId:")) {
+                        console.log("Received websocketId: " + message.split(":")[1]);
+                    } else {
+                        document.getElementById("chat-box").innerHTML += "<p>" + message + "</p>"; // messages -> chat-box
+                    }
+                };
+
+                // 폼 대신 버튼 클릭 이벤트로 변경
+                document.getElementById("send-btn").addEventListener("click", () => {
+                    const messageInput = document.getElementById("message"); // messageInput -> message
+                    const message = messageInput.value.trim();
+                    if (message) {
+                        ws.send(message);
+                        messageInput.value = ""; // 입력 필드 초기화
+                    }
+                });
+
+                // Enter 키로 전송 (옵션)
+                document.getElementById("message").addEventListener("keypress", (event) => {
+                    if (event.key === "Enter") {
+                        event.preventDefault();
+                        document.getElementById("send-btn").click();
+                    }
+                });
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("채팅방 로드 중 오류 발생");
+            });
+    });
+</script>
+</body>
+</html>
