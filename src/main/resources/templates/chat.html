@@ -13,7 +13,6 @@
         <thead>
         <tr>
             <th>방명</th>
-            <th>인원수</th>
             <th>방장</th>
         </tr>
         </thead>
@@ -29,7 +28,7 @@
 <script>
     async function chatroom() {
         try {
-            const response = await fetch('/chatroom', {
+            const response = await fetch('/chatroomList', {
                 method: 'GET',
                 credentials: 'include'
             });
@@ -49,22 +48,18 @@
 
                     row.innerHTML = `
                             <td>${room.name}</td>
-                            <td>${room.maxParticipants}명</td>
                             <td>${room.nickName}</td>
                         `;
-                    // 클릭 시 REST API 호출 후 이동
+                    //클릭 시 REST API 호출 후 이동
                     row.addEventListener('click', async () => {
                         try {
-                            const response = await fetch(`/chatroom/${room.id}`, {
+                            const response = await fetch(`/chatroomInfo?roomId=${room.id}`, {
                                 method: 'GET',
                                 credentials: 'include'
                             });
-                            if (!response.ok) throw new Error('채팅방 접속 실패');
-                            const result = await response.json();
-
                             // 서버 응답에 따라 처리 (예: 성공 시 페이지 이동)
-                            if (result.resultCode === 200) {
-                                window.location.href = `/chatroom/${room.id}`;
+                            if (response.ok) {
+                                window.location.href = `/chatroom`;
                             } else {
                                 alert('채팅방에 입장할 수 없습니다: ' + result.message);
                             }

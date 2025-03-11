@@ -6,14 +6,14 @@ import com.example.websocket.chatting.model.ChatRoom;
 import com.example.websocket.chatting.model.Member;
 import com.example.websocket.chatting.repository.ChatRoomRepository;
 import com.example.websocket.chatting.repository.MemberRepository;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class ChatServiceImpl implements com.example.websocket.chatting.service.ChatService {
@@ -96,22 +96,34 @@ public class ChatServiceImpl implements com.example.websocket.chatting.service.C
 
         ChatRoom chatRoom = ChatRoom.builder()
                 .name(requestDto.getName())
-                .description(requestDto.getDescription())
-                .maxParticipants(requestDto.getMaxParticipants())
+                //websocketId 저장
+//                .websocketId(websocketId)
                 .nickName(nickName)
                 .build();
 
         chatRoomRepository.save(chatRoom);
+
+
         result.put("chatRoom", chatRoom);
         return result;
     }
 
     @Override
-    public Map<String, Object> chatroom() {
+    public Map<String, Object> chatroomList() {
         Map<String, Object> result = new HashMap<>();
 
         List<ChatRoom> chatroomList = chatRoomRepository.findAll();
         result.put("chatroomList", chatroomList);
+
+        return result;
+    }
+
+    @Override
+    public Map<String, Object> chatroom(String roomId) {
+        Map<String, Object> result = new HashMap<>();
+        Optional<ChatRoom> chatRoom = chatRoomRepository.findById(roomId);
+
+        result.put("chatRoom", chatRoom);
 
         return result;
     }
