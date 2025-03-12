@@ -17,5 +17,8 @@ public interface ChatService {
     Map<String, Object> chatroomCreate(String nickName, ChatServiceRequestDto.chatroomCreate requestDto);
 
     //채팅방 전체 조회
-    Map<String, Object> chatroom();
+    Map<String, Object> chatroomList();
+
+    //채팅방 조회
+    Map<String, Object> chatroom(String roomId);
 }

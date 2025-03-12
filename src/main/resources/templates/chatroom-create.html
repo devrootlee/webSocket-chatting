@@ -2,8 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>채팅방 등록</title>
-    <link rel="stylesheet" href="/css/chatroom-create.css"> <!-- 분리된 CSS 파일 링크 -->
+    <link rel="stylesheet" href="/css/chatroom-create.css">
 </head>
 <body>
 <div class="container mt-5">
@@ -13,14 +12,6 @@
             <label for="name" class="form-label">채팅방 이름</label>
             <input type="text" class="form-control" id="name" name="name" required>
         </div>
-        <div class="mb-3">
-            <label for="description" class="form-label">설명</label>
-            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
-        </div>
-        <div class="mb-3">
-            <label for="maxParticipants" class="form-label">최대 인원</label>
-            <input type="number" class="form-control" id="maxParticipants" name="maxParticipants" required>
-        </div>
         <button type="submit" class="btn btn-primary">채팅방 생성</button>
     </form>
 </div>
@@ -29,28 +20,23 @@
     document.getElementById("chatroomForm").addEventListener("submit", function(event) {
         event.preventDefault();
 
-        const chatRoomData = {
-            name: document.getElementById("name").value,
-            description: document.getElementById("description").value,
-            maxParticipants: document.getElementById("maxParticipants").value
-        };
+        const chatRoomData = { name: document.getElementById("name").value };
 
         fetch("/chatroom/create", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(chatRoomData)
         })
             .then(response => {
-                if (!response.ok) {
-                    throw new Error("채팅방 생성 실패");
-                }
+                if (!response.ok) throw new Error("채팅방 생성 실패");
                 return response.json();
             })
             .then(data => {
-                alert("채팅방이 성공적으로 생성되었습니다!");
-                window.location.href = "/chat"; //채팅방 목록 페이지로 이동
+                const chatRoom = data.data.chatRoom;
+                const roomId = chatRoom.id;
+                //roomId를 로컬 스토리지에 저장하고 /chatroom으로 이동
+                localStorage.setItem("roomId", roomId);
+                window.location.href = "/chatroom";
             })
             .catch(error => {
                 console.error("Error:", error);
