@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="/css/chatroom.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
 </head>
 <body>
 <div class="chat-container">
     <!-- 뒤로가기 버튼 -->
-    <button class="back-btn" onclick="window.history.back();">뒤로가기</button>
+    <button class="back-btn" onclick="window.location.href='/chat';">뒤로가기</button>
 
     <div class="chat-box" id="chat-box">
         <!-- 채팅 메시지가 여기에 표시됨 -->
@@ -20,14 +22,31 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
+        // 로그인 상태 확인
+        fetch('/loginStatus', {
+            method: 'GET',
+            headers: {'Content-Type': 'application/json'},
+            credentials: 'include' //쿠키 포함(jwt)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.loginStatus) {
+                    window.location.href = "/";
+                }
+            })
+            .catch(error => {
+                console.error("로그인 상태 확인 실패:", error);
+            });
+
+
+        const nickname = sessionStorage.getItem("nickname");
+
         const roomId = localStorage.getItem("roomId");
         if (!roomId) {
             alert("채팅방 ID가 없습니다.");
             window.location.href = "/chat";
             return; // 추가: roomId 없으면 여기서 종료
         }
-
-        console.log("Fetching roomId: " + roomId);
 
         fetch("/chatroomInfo?roomId=" + roomId, {
             method: "GET",
@@ -40,25 +59,27 @@
             })
             .then(data => {
                 console.log("API Response:", data);
-                console.log(roomId);
 
-                const ws = new WebSocket("ws://localhost:8080/chatroom/" + roomId);
-                ws.onopen = () => console.log("WebSocket 연결됨");
-                ws.onmessage = (event) => {
-                    const message = event.data;
-                    if (message.startsWith("websocketId:")) {
-                        console.log("Received websocketId: " + message.split(":")[1]);
-                    } else {
-                        document.getElementById("chat-box").innerHTML += "<p>" + message + "</p>"; // messages -> chat-box
-                    }
-                };
+                // STOMP WebSocket 연결
+                const socket = new SockJS('/ws');  // 웹소켓 엔드포인트
+                const stompClient = Stomp.over(socket);
 
-                // 폼 대신 버튼 클릭 이벤트로 변경
+                stompClient.connect({}, function (frame) {
+                    console.log('STOMP 연결 성공', frame);
+
+                    // 채팅방 메시지 구독
+                    stompClient.subscribe('/chatroom/' + roomId, function (messageOutput) {
+                        const message = JSON.parse(messageOutput.body);
+                        document.getElementById("chat-box").innerHTML += "<p>" + message.sender + ": " + message.message + "</p>";
+                    });
+                });
+
+                // 메시지 전송
                 document.getElementById("send-btn").addEventListener("click", () => {
-                    const messageInput = document.getElementById("message"); // messageInput -> message
+                    const messageInput = document.getElementById("message");
                     const message = messageInput.value.trim();
                     if (message) {
-                        ws.send(message);
+                        stompClient.send("/app/chatroom/" + roomId, {}, JSON.stringify({ sender: nickname, message: message }));
                         messageInput.value = ""; // 입력 필드 초기화
                     }
                 });

@@ -6,14 +6,9 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 
@@ -39,11 +34,11 @@ public class JwtProvider {
     }
 
     //jwt 생성
-    public String generateJwt(String nickName) {
+    public String generateJwt(String nickname) {
         Date expirationDate = new Date(System.currentTimeMillis() + EXPIRATION_TIME);
 
         return Jwts.builder()
-                .setSubject(nickName) //사용자 닉네임
+                .setSubject(nickname) //사용자 닉네임
                 .setIssuedAt(new Date()) //발행 시간
                 .setExpiration(expirationDate)
                 .signWith(SignatureAlgorithm.HS256, getSecretKey())
@@ -64,8 +59,8 @@ public class JwtProvider {
         }
     }
 
-    //jwt 에서 nickName 구하기
-    public String extractNickNameAtJwt(String jwt) {
+    //jwt 에서 nickname 구하기
+    public String extractNicknameAtJwt(String jwt) {
         jwt = jwt.replace("Bearer ", "");
         return Jwts.parserBuilder()
                 .setSigningKey(generateSecretKey())

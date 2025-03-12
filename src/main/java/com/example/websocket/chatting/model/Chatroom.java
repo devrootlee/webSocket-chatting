@@ -7,11 +7,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Builder
-@Document(collection = "chat_room")
-public class ChatRoom {
+@Document(collection = "chatroom")
+public class Chatroom {
     @Id
     private String id;
-    private String websocketId;
     private String name;
-    private String nickName;
+    private String nickname;
 }

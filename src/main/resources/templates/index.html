@@ -36,12 +36,13 @@
             const loggedInDiv = document.getElementById('loggedIn');
             const welcomeMessage = document.getElementById('welcomeMessage');
 
-            console.log(data);
             if (data.loginStatus) {
                 // 로그인된 상태
                 notLoggedInDiv.style.display = 'none'; // 숨기기
                 loggedInDiv.style.display = 'block';  // 표시하기
-                welcomeMessage.textContent = `${data.nickName} 님 환영합니다`;
+                welcomeMessage.textContent = `${data.nickname} 님 환영합니다`;
+
+                sessionStorage.setItem("nickname", data.nickname);
             } else {
                 // 로그인되지 않은 상태
                 notLoggedInDiv.style.display = 'block'; // 표시하기
@@ -58,7 +59,10 @@
             method: 'POST',
             headers: {'Content-Type': 'application/json'}
         });
-        // 메인 페이지로 이동
+
+        sessionStorage.removeItem("nickname");
+        sessionStorage.removeItem("roomId");
+
         window.location.href = '/';
     }
 
