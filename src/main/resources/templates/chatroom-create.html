@@ -17,6 +17,22 @@
 </div>
 
 <script>
+    // 로그인 상태 확인
+    fetch('/loginStatus', {
+        method: 'GET',
+        headers: {'Content-Type': 'application/json'},
+        credentials: 'include' //쿠키 포함(jwt)
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.loginStatus) {
+                window.location.href = "/";
+            }
+        })
+        .catch(error => {
+            console.error("로그인 상태 확인 실패:", error);
+        });
+
     document.getElementById("chatroomForm").addEventListener("submit", function(event) {
         event.preventDefault();
 
@@ -32,10 +48,11 @@
                 return response.json();
             })
             .then(data => {
-                const chatRoom = data.data.chatRoom;
-                const roomId = chatRoom.id;
-                //roomId를 로컬 스토리지에 저장하고 /chatroom으로 이동
-                localStorage.setItem("roomId", roomId);
+                const chatroom = data.data.chatroom;
+                const roomId = chatroom.id;
+                //roomId를 세션 스토리지에 저장하고 /chatroom으로 이동
+                sessionStorage.setItem("roomId", roomId);
+
                 window.location.href = "/chatroom";
             })
             .catch(error => {

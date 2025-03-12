@@ -5,15 +5,16 @@ Web Socket Chatting
 ### - Skill Stack
 - Server
   - Ubuntu 24.04.1
-- DB
-  - MongoDB 7.0.17
-  - Redis
-- CI / CD
-  - Github Actions
 - Language
   - Java 17
+- Framework
+  - Spring Boot 3.2.2
+- DB
+  - MongoDB 7.0.17
+- CI/CD
+  - Github Actions
 
-### - 패키지 구조
+### - Package Structure
 ````
 .
 ├── README.md
@@ -92,7 +93,6 @@ SERVER_USER : server ssh name
 
 4. 위 세 개의 값을 이용하여 workflow 작성
 
-### - nginx
 
 ### - MongoDB 설치 방법(Ubuntu)
 1. ec2 public ip 주소를 얻은 뒤 ssh로 접근
@@ -131,3 +131,7 @@ sudo apt install -y mongodb-org
 부팅 시 자동 실행 : sudo systemctl eable mongod
 상태 확인 : sudo systemctl status mongod (active 상태면 성공)
 ````
+
+### - Feature
+웹소켓 적용 로직
+사용자 채팅방 입장 -> 사용자 웹소캣 생성 -> 채팅방에서는 대화내용 저장 -> 채팅방 나가면 웹소캣 close 

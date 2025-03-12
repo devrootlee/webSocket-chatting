@@ -48,25 +48,12 @@
 
                     row.innerHTML = `
                             <td>${room.name}</td>
-                            <td>${room.nickName}</td>
+                            <td>${room.nickname}</td>
                         `;
-                    //클릭 시 REST API 호출 후 이동
+                    //클릭 시 roomId 저장
                     row.addEventListener('click', async () => {
-                        try {
-                            const response = await fetch(`/chatroomInfo?roomId=${room.id}`, {
-                                method: 'GET',
-                                credentials: 'include'
-                            });
-                            // 서버 응답에 따라 처리 (예: 성공 시 페이지 이동)
-                            if (response.ok) {
-                                window.location.href = `/chatroom`;
-                            } else {
-                                alert('채팅방에 입장할 수 없습니다: ' + result.message);
-                            }
-                        } catch (error) {
-                            console.error('채팅방 접속 오류:', error);
-                            alert('채팅방에 입장하지 못했습니다.');
-                        }
+                        localStorage.setItem("roomId", room.id);
+                        window.location.href = `/chatroom`;
                     });
                     chatroomListBody.appendChild(row);
                 });

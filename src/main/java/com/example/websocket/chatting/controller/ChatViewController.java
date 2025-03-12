@@ -1,11 +1,10 @@
 package com.example.websocket.chatting.controller;
 
-import com.example.websocket.chatting.model.ChatMessage;
+import com.example.websocket.chatting.model.ChatroomMessage;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 public class ChatViewController {
@@ -42,7 +41,7 @@ public class ChatViewController {
 
     @MessageMapping("/x-chat")
     @SendTo("/topic/messages")
-    public ChatMessage sendMessage(ChatMessage message) {
+    public ChatroomMessage sendMessage(ChatroomMessage message) {
         return message;
     }
 }

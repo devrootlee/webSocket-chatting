@@ -7,7 +7,7 @@ public class ChatServiceRequestDto {
     @Getter
     @Setter
     public static class register {
-        private String nickName;
+        private String nickname;
 
         private String password;
     }
@@ -15,7 +15,7 @@ public class ChatServiceRequestDto {
     @Getter
     @Setter
     public static class login {
-        private String nickName;
+        private String nickname;
 
         private String password;
     }
@@ -30,7 +30,6 @@ public class ChatServiceRequestDto {
     @Setter
     public static class chatroomWebsocket {
         private String roomId;
-        private String websocketId;
     }
 
     @Getter
