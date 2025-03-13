@@ -27,6 +27,14 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/register", "/login").permitAll() //[POST] rest api
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // 필터 추가
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendRedirect("/"); //인증 실패 시 "/"로 리다이렉트
+                        }))
+                .sessionManagement(session -> session
+                        .maximumSessions(1) //중복 로그인 방지
+                        .expiredUrl("/") //세션 만료 시 이동
+                )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/")
