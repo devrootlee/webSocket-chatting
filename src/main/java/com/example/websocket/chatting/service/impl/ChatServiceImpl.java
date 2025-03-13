@@ -126,7 +126,9 @@ public class ChatServiceImpl implements ChatService {
     public Map<String, Object> chatroom(String roomId) {
         Map<String, Object> result = new HashMap<>();
         Optional<Chatroom> chatRoom = chatroomRepository.findById(roomId);
+        List<ChatroomMessage> chatroomMsgList = chatroomMessageRepository.findByRoomId(roomId);
 
+        result.put("chatroomMsgList", chatroomMsgList);
         result.put("chatroom", chatRoom);
 
         return result;

@@ -7,13 +7,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
 </head>
 <body>
+<!-- 뒤로가기 버튼 -->
+<button class="back-btn" onclick="disconnectWebSocket(); window.location.href='/chat'">뒤로가기</button>
 <div class="chat-container">
-    <!-- 뒤로가기 버튼 -->
-    <button class="back-btn" onclick="window.location.href='/chat';">뒤로가기</button>
 
     <div class="chat-box" id="chat-box">
         <!-- 채팅 메시지가 여기에 표시됨 -->
     </div>
+
     <div class="chat-input">
         <input type="text" id="message" placeholder="메시지를 입력하세요...">
         <button id="send-btn">전송</button>
@@ -22,30 +23,18 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // 로그인 상태 확인
-        fetch('/loginStatus', {
-            method: 'GET',
-            headers: {'Content-Type': 'application/json'},
-            credentials: 'include' //쿠키 포함(jwt)
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (!data.loginStatus) {
-                    window.location.href = "/";
-                }
-            })
-            .catch(error => {
-                console.error("로그인 상태 확인 실패:", error);
-            });
+        console.log("DOM 로드 완료, checkLoginStatus 호출");
+        initChat();
+    });
 
-
+    function initChat() {
         const nickname = sessionStorage.getItem("nickname");
-
         const roomId = localStorage.getItem("roomId");
+
         if (!roomId) {
             alert("채팅방 ID가 없습니다.");
             window.location.href = "/chat";
-            return; // 추가: roomId 없으면 여기서 종료
+            return;
         }
 
         fetch("/chatroomInfo?roomId=" + roomId, {
@@ -57,46 +46,74 @@
                 if (!response.ok) throw new Error("채팅방 조회 실패");
                 return response.json();
             })
-            .then(data => {
-                console.log("API Response:", data);
-
-                // STOMP WebSocket 연결
-                const socket = new SockJS('/ws');  // 웹소켓 엔드포인트
-                const stompClient = Stomp.over(socket);
-
-                stompClient.connect({}, function (frame) {
-                    console.log('STOMP 연결 성공', frame);
-
-                    // 채팅방 메시지 구독
-                    stompClient.subscribe('/chatroom/' + roomId, function (messageOutput) {
-                        const message = JSON.parse(messageOutput.body);
-                        document.getElementById("chat-box").innerHTML += "<p>" + message.sender + ": " + message.message + "</p>";
-                    });
-                });
-
-                // 메시지 전송
-                document.getElementById("send-btn").addEventListener("click", () => {
-                    const messageInput = document.getElementById("message");
-                    const message = messageInput.value.trim();
-                    if (message) {
-                        stompClient.send("/app/chatroom/" + roomId, {}, JSON.stringify({ sender: nickname, message: message }));
-                        messageInput.value = ""; // 입력 필드 초기화
-                    }
-                });
-
-                // Enter 키로 전송 (옵션)
-                document.getElementById("message").addEventListener("keypress", (event) => {
-                    if (event.key === "Enter") {
-                        event.preventDefault();
-                        document.getElementById("send-btn").click();
-                    }
-                });
-            })
+            .then(data => setupChat(data, roomId, nickname))
             .catch(error => {
                 console.error("Error:", error);
                 alert("채팅방 로드 중 오류 발생");
             });
-    });
+    }
+
+    function setupChat(chatData, roomId, nickname) {
+        console.log("채팅방 정보:", chatData);
+
+        const chatBox = document.getElementById("chat-box");
+        const msgList = chatData.data.chatroomMsgList;
+
+        // 초기 메시지 렌더링 (내가 보낸 건 오른쪽, 남이 보낸 건 왼쪽)
+        msgList.forEach(msg => {
+            const isMyMessage = msg.sender === nickname;
+            const messageElement = `
+                    <p class="${isMyMessage ? 'my-message' : 'other-message'}">
+                        ${msg.sender}: ${msg.message}
+                        <span class="timestamp">(${new Date(msg.timestamp).toLocaleString()})</span>
+                    </p>`;
+            chatBox.insertAdjacentHTML('beforeend', messageElement);
+        });
+
+        chatBox.scrollTop = 0;
+
+        const socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, frame => {
+            console.log('STOMP 연결 성공', frame);
+            stompClient.subscribe('/chatroom/' + roomId, messageOutput => {
+                const message = JSON.parse(messageOutput.body);
+                const isMyMessage = message.sender === nickname;
+                const newMessage = `
+                        <p class="${isMyMessage ? 'my-message' : 'other-message'}">
+                            ${message.sender}: ${message.message}
+                        </p>`;
+                chatBox.insertAdjacentHTML('beforeend', newMessage);
+            });
+        });
+
+        document.getElementById("send-btn").addEventListener("click", () => sendMessage(stompClient, roomId, nickname));
+        document.getElementById("message").addEventListener("keypress", event => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                sendMessage(stompClient, roomId, nickname);
+            }
+        });
+    }
+
+    function sendMessage(stompClient, roomId, nickname) {
+        const messageInput = document.getElementById("message");
+        const message = messageInput.value.trim();
+
+        if (message) {
+            stompClient.send("/app/chatroom/" + roomId, {}, JSON.stringify({ sender: nickname, message }));
+            messageInput.value = "";
+        }
+    }
+
+    function disconnectWebSocket() {
+        if (stompClient !== null && stompClient.connected) {
+            stompClient.disconnect(() => {
+                console.log("WebSocket 연결 종료");
+            });
+        }
+    }
 </script>
 </body>
 </html>

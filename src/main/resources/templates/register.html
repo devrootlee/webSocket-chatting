@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="/css/register.css">
 </head>
 <body>
+<!-- 뒤로가기 버튼 -->
+<button class="back-btn" onclick="window.location.href='/'">뒤로가기</button>
 <h1>회원가입</h1>
 <form onsubmit="register(event)">
     <div>
@@ -18,7 +20,6 @@
         <input type="password" id="password" name="password" required>
     </div>
     <button type="submit" id="registerButton" disabled>가입</button>
-    <a href="/login">로그인</a>
 </form>
 <script>
     async function checkNickname() {
@@ -59,15 +60,6 @@
         });
 
         console.log(response);
-
-        // const result = response.json();
-        // console.log(result);
-        //
-        // if (!response.ok) { // 200이 아닐 때 (오류 발생)
-        //     alert(result.error || "회원가입에 실패했습니다.");
-        //     window.location.href = "/error";
-        //     return;
-        // }
 
         window.location.href = "/"; // 성공 시 클라이언트에서 이동
     }
