@@ -23,13 +23,7 @@ public class ChatServiceRequestDto {
     @Getter
     @Setter
     public static class chatroomCreate {
-        private String name;
-    }
-
-    @Getter
-    @Setter
-    public static class chatroomWebsocket {
-        private String roomId;
+        private String participantNickname;
     }
 
     @Getter
