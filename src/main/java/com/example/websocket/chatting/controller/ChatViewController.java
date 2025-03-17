@@ -24,6 +24,11 @@ public class ChatViewController {
         return "register";
     }
 
+    @GetMapping("/mypage")
+    public String mypage() {
+        return "mypage";
+    }
+
     @GetMapping("/chat")
     public String chat() {
         return "chat";

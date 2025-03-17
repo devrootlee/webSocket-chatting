@@ -59,7 +59,7 @@
         const chatBox = document.getElementById("chat-box");
         const msgList = chatData.data.chatroomMsgList;
 
-        // 초기 메시지 렌더링 (내가 보낸 건 오른쪽, 남이 보낸 건 왼쪽)
+        //초기 메시지 렌더링 (내가 보낸 건 오른쪽, 남이 보낸 건 왼쪽)
         msgList.forEach(msg => {
             const isMyMessage = msg.sender === nickname;
             const messageElement = `
@@ -75,7 +75,7 @@
         const socket = new SockJS('/ws');
         stompClient = Stomp.over(socket);
 
-        stompClient.connect({}, frame => {
+        stompClient.connect({'roomId' : roomId}, frame => {
             console.log('STOMP 연결 성공', frame);
             stompClient.subscribe('/chatroom/' + roomId, messageOutput => {
                 const message = JSON.parse(messageOutput.body);
@@ -109,6 +109,11 @@
 
     function disconnectWebSocket() {
         if (stompClient !== null && stompClient.connected) {
+            const roomId = localStorage.getItem("roomId");
+            if (roomId) {
+                stompClient.send("/app/disconnect", {}, JSON.stringify({ roomId: roomId }));
+                console.log("Disconnect 메시지 전송, roomId: " + roomId);
+            }
             stompClient.disconnect(() => {
                 console.log("WebSocket 연결 종료");
             });

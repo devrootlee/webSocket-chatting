@@ -29,7 +29,7 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // 필터 추가
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {
-                            response.sendRedirect("/"); //인증 실패 시 "/"로 리다이렉트
+                            response.sendRedirect("/"); //인증 실패 시 "/"로 리다이렉트(쿠키에 정보가 없을경우)
                         }))
                 .sessionManagement(session -> session
                         .maximumSessions(1) //중복 로그인 방지

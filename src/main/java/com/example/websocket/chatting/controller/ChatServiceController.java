@@ -6,7 +6,6 @@ import com.example.websocket.chatting.model.ChatroomMessage;
 import com.example.websocket.chatting.service.ChatService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 public class ChatServiceController {
@@ -26,6 +26,8 @@ public class ChatServiceController {
 
     //메시지 저장은 서비스단보단 컨트롤러에서 바로 처리
     private final SimpMessagingTemplate messagingTemplate;
+    //채팅방 사용자 수를 저장하는 맵
+    private final ConcurrentHashMap<String, Integer> roomUserCount = new ConcurrentHashMap<>();
 
     public ChatServiceController(CommonUtil commonUtil, ChatService chatService, SimpMessagingTemplate simpMessagingTemplate) {
         this.commonUtil = commonUtil;
@@ -46,6 +48,7 @@ public class ChatServiceController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody ChatServiceRequestDto.login requestDto, HttpServletResponse response) {
         Map<String, Object> serviceResponse = chatService.login(requestDto);
+        System.out.println(serviceResponse);
 
         if (serviceResponse.get("jwt") == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -85,8 +88,13 @@ public class ChatServiceController {
         return ResponseEntity.ok(Map.of("loginStatus", true, "nickname", nickname));
     }
 
-    @PostMapping("/chatroom/create")
-    public ResponseEntity<Map<String, Object>> chatCreate(@AuthenticationPrincipal String nickname, @RequestBody ChatServiceRequestDto.chatroomCreate requestDto) {
+    @GetMapping("/memberList")
+    public ResponseEntity<Map<String, Object>> memberList(@AuthenticationPrincipal String nickname) {
+        return commonUtil.ApiResponse(chatService.memberList(nickname));
+    }
+
+    @PostMapping("/chatroom")
+    public ResponseEntity<Map<String, Object>> chatroomCreate(@AuthenticationPrincipal String nickname, @RequestBody ChatServiceRequestDto.chatroomCreate requestDto) {
         return commonUtil.ApiResponse(chatService.chatroomCreate(nickname, requestDto));
     }
 
@@ -97,7 +105,12 @@ public class ChatServiceController {
 
     @GetMapping("/chatroomInfo")
     public ResponseEntity<Map<String, Object>> chatroomInfo(@RequestParam String roomId) {
-        return commonUtil.ApiResponse(chatService.chatroom(roomId));
+        return commonUtil.ApiResponse(chatService.chatroomInfo(roomId));
+    }
+
+    @DeleteMapping("/chatroom")
+    public void chatroomDelete(@RequestParam String roomId) {
+        chatService.chatroomDelete(roomId);
     }
 
     @MessageMapping("/chatroom/{roomId}")
