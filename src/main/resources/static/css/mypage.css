@@ -99,3 +99,17 @@ header h1 {
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
     background-color: #f8fafc;
 }
+
+#logout-btn {
+    margin-top: 10px;
+    padding: 5px 25px;
+    background-color: #43b1cd;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight : bold;
+}
+#logout-btn:hover {
+    background-color: #43b1cd;
+}
