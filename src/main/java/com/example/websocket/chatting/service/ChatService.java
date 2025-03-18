@@ -113,22 +113,23 @@ public class ChatService {
         Map<String, Object> result = new HashMap<>();
 
         //기존 채팅방이 있으면 생성안함
-        Chatroom existingChatroom1 = chatroomRepository.findByInitiatorNicknameAndParticipantNickname(nickname, requestDto.getParticipantNickname());
+        Chatroom existingChatroom1 = chatroomRepository.findByInitiatorAndParticipant(nickname, requestDto.getParticipant());
         if (existingChatroom1 != null) {
             result.put("chatroom", existingChatroom1);
             return result;
         }
 
         //반대 경우
-        Chatroom existingChatroom2 = chatroomRepository.findByInitiatorNicknameAndParticipantNickname(requestDto.getParticipantNickname(), nickname);
+        Chatroom existingChatroom2 = chatroomRepository.findByInitiatorAndParticipant(requestDto.getParticipant(), nickname);
         if (existingChatroom2 != null) {
             result.put("chatroom", existingChatroom2);
             return result;
         }
 
+        //없으면 생성
         Chatroom chatroom = Chatroom.builder()
-                .initiatorNickname(nickname)
-                .participantNickname(requestDto.getParticipantNickname())
+                .initiator(nickname)
+                .participant(requestDto.getParticipant())
                 .build();
 
         chatroomRepository.save(chatroom);
@@ -137,10 +138,10 @@ public class ChatService {
         return result;
     }
 
-    public Map<String, Object> chatroomList() {
+    public Map<String, Object> chatroomList(String nickname) {
         Map<String, Object> result = new HashMap<>();
 
-        List<Chatroom> chatroomList = chatroomRepository.findAll();
+        List<Chatroom> chatroomList = chatroomRepository.findByInitiatorOrParticipant(nickname, nickname);
         result.put("chatroomList", chatroomList);
 
         return result;
@@ -164,6 +165,16 @@ public class ChatService {
 
     public void chatroomMessageSave(String roomId, ChatroomMessage message) {
         message.setRoomId(roomId);
-        chatroomMessageRepository.save(message);
+        ChatroomMessage chatroomMessage = chatroomMessageRepository.save(message);
+
+        //마지막 메시지 저장
+        Optional<Chatroom> chatroomOptional = chatroomRepository.findById(chatroomMessage.getRoomId());
+
+        if (chatroomOptional.isPresent()) {
+            Chatroom chatroom = chatroomOptional.get();
+            chatroom.setLastMessage(message.getMessage());
+
+            chatroomRepository.save(chatroom);
+        }
     }
 }

@@ -10,7 +10,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "member")
 public class Member {
     @Indexed(unique = true)
-    private String nickname;
-
-    private String password;
+    private String nickname; //닉네임
+    private String password; //패스워드
 }

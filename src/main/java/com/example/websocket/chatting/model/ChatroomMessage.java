@@ -12,9 +12,9 @@ import java.time.LocalDateTime;
 @Document(collection = "chatroom_message")
 public class ChatroomMessage {
         @Id
-        private String id;
-        private String roomId;
-        private String sender;
-        private String message;
-        private LocalDateTime timestamp;
+        private String id; //MongoDB 고유 ID
+        private String roomId; //채팅방 ID
+        private String sender; //발신자
+        private String message; //메시지
+        private LocalDateTime timestamp; //발송시간
 }
