@@ -91,3 +91,20 @@ p {
 .chat-room-table tr.chat-room-item:hover {
     background-color: #f1f1f1;
 }
+
+.back-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 8px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.back-btn:hover {
+    background-color: #0056b3;
+}

@@ -6,11 +6,13 @@
     <link rel="stylesheet" href="/css/login.css">
 </head>
 <body>
+<!-- 뒤로가기 버튼 -->
+<button class="back-btn" onclick="window.location.href='/'">뒤로가기</button>
 <h1>로그인</h1>
 <form onsubmit="submitLogin(event)">
     <div>
         <label>닉네임</label>
-        <input type="text" name="nickName" required>
+        <input type="text" name="nickname" required>
     </div>
     <div>
         <label>비밀번호</label>
@@ -24,13 +26,13 @@
     async function submitLogin(event) {
         event.preventDefault(); // 기본 form 제출 방지
 
-        const nickName = document.querySelector('input[name="nickName"]').value;
+        const nickname = document.querySelector('input[name="nickname"]').value;
         const password = document.querySelector('input[name="password"]').value;
 
         const response = await fetch('/login', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({nickName, password})
+            body: JSON.stringify({nickname: nickname, password})
         });
 
         if (response.ok) {

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/footer.css">
+    <link rel="stylesheet" href="/css/mypage.css">
+    <title>My Page</title>
+</head>
+<body>
+<!-- 상단: 웹소켓 채팅서비스 -->
+<header>
+    <h1>웹소캣 채팅서비스</h1>
+</header>
+
+<!-- 중단: 내 정보 (프로필 사진, 이름) -->
+<section id="my-info">
+    <h2>내 정보</h2>
+    <div>
+        <img src="https://www.pngkey.com/png/detail/14-148130_minion-imagenes-de-100x100-pixeles.png" alt="Profile Picture" width="100" height="100">
+        <p>이름: <span id="user-nickname">사용자 이름</span></p>
+    </div>
+</section>
+
+<!-- 하단: 가입된 멤버 리스트 -->
+<section id="members">
+    <h2>유저</h2>
+    <ul id="member-list">
+        <!-- 사용자 목록은 JavaScript로 동적으로 추가됩니다. -->
+    </ul>
+</section>
+
+<!-- 페이지 하단에 고정된 버튼 -->
+<div class="footer-buttons">
+    <button class="left" onClick = fetchMypage()>마이 페이지</button>
+    <button class="right" onClick = fetchChat()>채팅방</button>
+</div>
+
+<script>
+    const nickname = sessionStorage.getItem("nickname");
+
+    if (nickname) {
+        document.getElementById("user-nickname").textContent = nickname;
+    }
+
+    async function fetchMypage() {
+        const response = await fetch('/mypage', {
+            method: 'GET',
+            headers: {'Content-Type': 'application/json'},
+            credentials: 'include' //쿠키 포함(jwt)
+        });
+
+        if (response.ok) {
+            window.location.href = '/mypage'; // 채팅 페이지로 리디렉션
+        } else {
+            alert('접근 권한이 없습니다');
+        }
+    }
+
+    async function fetchChat() {
+        const response = await fetch('/chat', {
+            method: 'GET',
+            headers: {'Content-Type': 'application/json'},
+            credentials: 'include' //쿠키 포함(jwt)
+        });
+
+        if (response.ok) {
+            window.location.href = '/chat'; // 채팅 페이지로 리디렉션
+        } else {
+            alert('접근 권한이 없습니다');
+        }
+    }
+
+    //API로부터 멤버 목록을 받아와서 표시하는 함수
+    async function fetchMemberList() {
+        try {
+            const response = await fetch('/memberList', {
+                method: 'GET',
+                headers: {'Content-Type': 'application/json'},
+                credentials: 'include' // 쿠키 포함 (JWT)
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.resultCode === 200) {
+                const memberList = data.data.memberList;
+                const memberListContainer = document.getElementById("member-list");
+
+                //기존 목록 초기화
+                memberListContainer.innerHTML = '';
+
+                //멤버 리스트 추가
+                memberList.forEach(member => {
+                    const listItem = document.createElement("li");
+                    listItem.textContent = member.nickname;
+                    listItem.style.cursor = "pointer"; // 클릭 가능하도록 커서 변경
+                    listItem.addEventListener("click", () => fetchChatroomCreate(member)); // 클릭 시 채팅방 생성
+                    memberListContainer.appendChild(listItem);
+                });
+            } else {
+                alert('멤버 목록을 가져오는 데 실패했습니다.');
+            }
+        } catch (error) {
+            console.error("API 호출 중 오류 발생:", error);
+            alert('API 호출 중 오류가 발생했습니다.');
+        }
+    }
+
+    // 채팅방 생성 함수
+    async function fetchChatroomCreate(member) {
+        try {
+            const response = await fetch('/chatroom', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                credentials: 'include', // 쿠키 포함 (jwt)
+                body: JSON.stringify({
+                    participantNickname: member.nickname // body에 member 정보 추가 (nickname 사용)
+                })
+            });
+
+            const data = await response.json();
+            const roomId = data.data.chatroom.id;
+            const newFlag = data.data.new;
+
+            if (response.ok && data.resultCode === 200) {
+                sessionStorage.setItem("roomId", roomId);
+                window.location.href = '/chatroom'; // 채팅 페이지로 리디렉션
+            } else {
+                alert('채팅방 생성에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error("채팅방 생성 중 오류 발생:", error);
+            alert('채팅방 생성 중 오류가 발생했습니다.');
+        }
+    }
+
+    // 페이지 로드 시 멤버 리스트를 가져오는 함수 호출
+    window.onload = fetchMemberList;
+</script>
+</body>
+</html>

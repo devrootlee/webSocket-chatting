@@ -23,10 +23,18 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/error","/login", "/register", "/css/**").permitAll() //인증필요없는 화면
-                        .requestMatchers(HttpMethod.GET, "/checkNickName", "loginStatus").permitAll() //[GET] rest api
+                        .requestMatchers(HttpMethod.GET, "/checkNickname", "loginStatus").permitAll() //[GET] rest api
                         .requestMatchers(HttpMethod.POST, "/register", "/login").permitAll() //[POST] rest api
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // 필터 추가
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendRedirect("/"); //인증 실패 시 "/"로 리다이렉트(쿠키에 정보가 없을경우)
+                        }))
+                .sessionManagement(session -> session
+                        .maximumSessions(1) //중복 로그인 방지
+                        .expiredUrl("/") //세션 만료 시 이동
+                )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/")

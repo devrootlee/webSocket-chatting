@@ -40,20 +40,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         //token != null && 해당 서버에서 만든 jwt 인지 검증 && jwt 요효기간 확인
         if (jwt != null && jwtProvider.validateJwt(jwt) && !jwtProvider.isJwtExpired(jwt)) {
             //jwt 저장된 닉네임 확인
-            String nickName = jwtProvider.extractNickNameAtJwt(jwt);
+            String nickname = jwtProvider.extractNicknameAtJwt(jwt);
             UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(nickName, null, List.of());
+                    new UsernamePasswordAuthenticationToken(nickname, null, List.of());
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7); // "Bearer "를 제외한 토큰 부분만 추출
-        }
-        return null;
     }
 }

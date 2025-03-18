@@ -6,33 +6,34 @@
     <link rel="stylesheet" href="/css/register.css">
 </head>
 <body>
+<!-- 뒤로가기 버튼 -->
+<button class="back-btn" onclick="window.location.href='/'">뒤로가기</button>
 <h1>회원가입</h1>
 <form onsubmit="register(event)">
     <div>
         <label>닉네임</label>
-        <input type="text" id="nickName" name="nickName" required onblur="checkNickName()">
-        <div id="nickNameMessage"></div>
+        <input type="text" id="nickname" name="nickname" required onblur="checkNickname()">
+        <div id="nicknameMessage"></div>
     </div>
     <div>
         <label>비밀번호</label>
         <input type="password" id="password" name="password" required>
     </div>
     <button type="submit" id="registerButton" disabled>가입</button>
-    <a href="/login">로그인</a>
 </form>
 <script>
-    async function checkNickName() {
-        const nickName = document.getElementById('nickName').value;
+    async function checkNickname() {
+        const nickname = document.getElementById('nickname').value;
         const registerButton = document.getElementById('registerButton');
-        const message = document.getElementById('nickNameMessage');
+        const message = document.getElementById('nicknameMessage');
 
-        if (!nickName) {
+        if (!nickname) {
             message.textContent = '';
             registerButton.disabled = true;
             return;
         }
 
-        const response = await fetch(`/checkNickName?nickName=${nickName}`);
+        const response = await fetch(`/checkNickname?nickname=${nickname}`);
         const { data: { available } } = await response.json();
 
         if (available) {
@@ -43,38 +44,24 @@
             message.textContent = '닉네임이 중복되었습니다.';
             message.style.color = 'red';
             registerButton.disabled = true;
-            document.getElementById('nickName').focus();
+            document.getElementById('nickname').focus();
         }
     }
 
-    function register(event) {
+    async function register(event) {
         event.preventDefault();
-        const nickName = document.getElementById('nickName').value;
+        const nickname = document.getElementById('nickname').value;
         const password = document.getElementById('password').value;
 
-        const response = fetch('/register', {
+        const response = await fetch('/register', {
             method: 'POST',
-            body: JSON.stringify({ nickName, password })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nickname: nickname, password: password })
         });
 
-        const result = response.json();
+        console.log(response);
 
-        if (!response.ok) { // 200이 아닐 때 (오류 발생)
-            alert(result.error || "회원가입에 실패했습니다.");
-            window.location.href = "/error";
-            return;
-        }
-
-        // 200일 때 (성공)
-        const responseNickName = result?.data?.member?.nickName;
-
-        if (responseNickName) {
-            alert(`${responseNickName}님 가입을 축하합니다.`);
-        } else {
-            alert("가입이 완료되었지만 닉네임을 불러오지 못했습니다.");
-        }
-
-        window.location.href = '/'; // 성공 시 클라이언트에서 이동
+        window.location.href = "/"; // 성공 시 클라이언트에서 이동
     }
 </script>
 </body>

@@ -1,133 +1,107 @@
-Web Socket Chatting
+# 📡 WebSocket Chatting
 
-## 
+## ✅ 프로젝트 개요
+이론으로만 접했던 WebSocket을 실무에서 사용할 기회가 없어서, 스스로 사용법을 익히고 구현한 간단한 채팅 서비스 프로젝트입니다.  
+WebSocket과 STOMP 프로토콜을 적용하여 **실시간 양방향 통신**을 구현하고, JWT 인증과 보안 강화까지 구현했습니다.
+---
 
-### - Skill Stack
-- Server
-  - Ubuntu 24.04.1
-- DB
-  - MongoDB 7.0.17
-  - Redis
-- CI / CD
-  - Github Actions
-- Language
-  - Java 17
+## ✅ 주요 기능
 
-### - 패키지 구조
-````
-.
-├── README.md
-└── src
-    └── main
-        ├── java
-        │   └── com
-        │       └── example
-        │           └── websocket
-        │               └── chatting
-        │                   ├── Application.java
-        │                   ├── common
-        │                   │   ├── config
-        │                   │   │   └── WebSocketConfig.java : websocket 설정
-        │                   │   ├── exception
-        │                   │   │   ├── ExceptionController.java : @RestControllerAdvice 설정
-        │                   │   │   └── ValidationCode.java : 커스텀 http 상태코드
-        │                   │   ├── security
-        │                   │   │   ├── EncryptionConfig.java : 사용자 패스워드 암호화
-        │                   │   │   ├── JwtAuthenticationFilter.java : 허용되지 않은 URI 접근 시 jwt 확인하는 필터
-        │                   │   │   ├── JwtProvider.java : jwt 설정(생성, 검증, 저장된 값 확인, 유효기간 확인) 
-        │                   │   │   └── SecurityConfig.java : Spring security 설정
-        │                   │   └── util
-        │                   │       └── CommonUtil.java : util
-        │                   ├── controller
-        │                   │   ├── ChatServiceController.java : chat rest-controller
-        │                   │   └── ChatViewController.java : chat view-controller
-        │                   ├── dto
-        │                   │   └── ChatServiceRequestDto.java : chat-restcontroller requestdto 
-        │                   ├── model
-        │                   │   ├── ChatMessage.java : chat_message model
-        │                   │   ├── ChatRoom.java : chat_room model
-        │                   │   └── Member.java : member model
-        │                   ├── repository
-        │                   │   └── MemberRepository.java : member repository
-        │                   └── service
-        │                       ├── ChatService.java 
-        │                       └── impl
-        │                           └── ChatServiceImpl.java : chat rest-service
-        └── resources
-            ├── application.yml
-            ├── static
-            │   └── css
-            │       ├── chat.css
-            │       ├── index.css
-            │       ├── login.css
-            │       └── register.css
-            └── templates
-                ├── chat.html
-                ├── error.html
-                ├── index.html
-                ├── login.html
-                └── register.html
-````
+- **회원 관리**
+  - 로그인 / 회원가입 (JWT 인증 방식, MongoB)
+  - 중복 로그인 방지
+- **채팅 기능**
+  - 채팅방 생성 / 조회 / 입장 / 퇴장
+  - 실시간 채팅 (WebSocket + STOMP)
+  - 채팅 메시지 저장 / 조회 (MongoDB)
+- **보안**
+  - httpOnly 쿠키에 JWT 저장 → XSS 방어
+  - 클라이언트가 직접 토큰을 다루지 않아 보안 강화
+  - 로그인하지 않은 사용자는 쿠키가 없어 메인페이지만 접근 가능
+  - Spring Security 로 접근 제어 및 인증 처리
 
+---
 
+## ✅ 기술 스택
 
+| 분야                              | 사용 기술                       |
+|---------------------------------|-----------------------------|
+| Language(언어)                    | Java 17                     |
+| Framework(프레임워크)                | Spring Boot 3.2.2           |
+| Database(데이터베이스)                | MongoDB 7.0.17              |
+| Server(서버)                      | AWS EC2(Ubuntu 24.04.1 LTS) |
+| Security(보안)                    | JWT, Spring Security        |
+| CI/CD(배포)                       | Github Actions              |
+| Client(클라이언트)                   | Thymeleaf + Fetch API       |
+| Communication Protocol(통신 프로토콜) | WebSocket + STOMP           |
+--------------------------------------------
 
-### - Github Actions 설정
-1. workflow 파일 생성
-````
-프로젝트에 다음 경로로 파일 생성 : ./github/workflows.[workflow 파일명].yml
-````
+## ✅ 아키텍처 및 주요 구현 포인트
 
-2. Github secrets 설정
-````
-Settings > Secrets and variables > Actions에서 비밀 변수(Secrets)를 설정
-````
+### 1. WebSocket + STOMP 구조
+- STOMP 프로토콜을 적용하여 구독/발행 구조를 사용
+- 채팅방 입장 시 실시간 연결 생성, 퇴장 시 연결 종료 → **리소스 최적화**
+- WebSocket 핸드쉐이크와 인증 절차는 JWT로 처리
 
-3. secrets 안에 서버접근 키, 서버 호스트, 서버 유저명 셋팅
-````
-SERVER_PEM_KEY : pem key value
-SERVER_HOST : server public ip
-SERVER_USER : server ssh name
-````
+### 2. JWT 인증과 보안 강화
+- httpOnly 쿠키에 JWT 저장하여 **XSS 방지**
+- 필터(`JwtAuthenticationFilter`)를 통해 인증이 필요한 요청 차단
+- 중복 로그인 감지를 통해 동일 계정의 다중 접속 제한
 
-4. 위 세 개의 값을 이용하여 workflow 작성
+### 3. SSR + CSR 혼합 방식
+- Thymeleaf 템플릿 엔진으로 SSR 제공
+- Fetch API를 이용하여 비동기 데이터 로드 → SSR과 CSR 혼합 방식으로 구성
+- 다른 프론트엔드와의 확장성 고려 (API 중심 설계)
 
-### - nginx
+---
 
-### - MongoDB 설치 방법(Ubuntu)
-1. ec2 public ip 주소를 얻은 뒤 ssh로 접근
-````
-ssh -i [/path/파일명].pem ubuntu@[EC2 퍼블릭 IP]
-````
-2. MongoDB 설치
+## ✅ 디렉토리 구조
 
-서버 업데이트 및 필수 패키지 설치
-````
-sudo apt update
-sudo apt upgrade -y
-sudo apt install -y gnupg curl
-````
-
-MongoDB 공식 GPG 키 추가
-````
-curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | sudo gpg --dearmor -o /usr/share/keyrings/mongodb-server-7.0.gpg
-````
-
-MongoDB 저장소 추가
-````
-echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
-````
-
-패키지 목록 업데이트 및 MongoDB 설치
-````
-sudo apt update
-sudo apt install -y mongodb-org
-````
-
-3. MongoDB 시작 및 활성화
-
-````
-서비스 시작 : sudo systemctl start mongod
-부팅 시 자동 실행 : sudo systemctl eable mongod
-상태 확인 : sudo systemctl status mongod (active 상태면 성공)
-````
+```
+src
+└── main
+    ├── java
+    │   └── com.example.websocket.chatting
+    │       ├── Application.java
+    │       ├── common
+    │       │   ├── config
+    │       │   │   └── WebSocketConfig.java           # WebSocket 설정
+    │       │   ├── exception
+    │       │   │   ├── ExceptionController.java       # 글로벌 예외 처리
+    │       │   │   └── ValidationCode.java            # 커스텀 상태 코드
+    │       │   ├── security
+    │       │   │   ├── EncryptionConfig.java          # 패스워드 암호화
+    │       │   │   ├── JwtAuthenticationFilter.java   # JWT 검증 필터
+    │       │   │   ├── JwtProvider.java               # JWT 생성/검증/관리
+    │       │   │   └── SecurityConfig.java            # Spring Security 설정
+    │       │   └── util
+    │       │       └── CommonUtil.java
+    │       ├── controller
+    │       │   ├── ChatServiceController.java         # 채팅 REST API
+    │       │   └── ChatViewController.java            # 뷰 처리용 Controller
+    │       ├── dto
+    │       │   └── ChatServiceRequestDto.java
+    │       ├── model
+    │       │   ├── ChatMessage.java
+    │       │   ├── ChatRoom.java
+    │       │   └── Member.java
+    │       ├── repository
+    │       │   └── MemberRepository.java
+    │       └── service
+    │           ├── ChatService.java
+    │           └── impl
+    │               └── ChatServiceImpl.java
+    └── resources
+        ├── application.yml
+        ├── static/css
+        │   ├── chat.css
+        │   ├── index.css
+        │   ├── login.css
+        │   └── register.css
+        └── templates
+            ├── chat.html
+            ├── error.html
+            ├── index.html
+            ├── login.html
+            └── register.html
+```

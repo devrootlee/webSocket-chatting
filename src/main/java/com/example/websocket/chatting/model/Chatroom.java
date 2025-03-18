@@ -5,13 +5,14 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Data
 @Builder
-@Document(collection = "chat_room")
-public class ChatRoom {
+@Document(collection = "chatroom")
+public class Chatroom {
     @Id
     private String id;
-    private String websocketId;
-    private String name;
-    private String nickName;
+    private String initiatorNickname;
+    private String participantNickname;
 }

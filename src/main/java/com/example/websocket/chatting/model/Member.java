@@ -2,7 +2,6 @@ package com.example.websocket.chatting.model;
 
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -11,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "member")
 public class Member {
     @Indexed(unique = true)
-    private String nickName;
+    private String nickname;
 
     private String password;
 }
