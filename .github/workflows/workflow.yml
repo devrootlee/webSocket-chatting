@@ -51,6 +51,8 @@ jobs:
           
           # 서버에 JAR 파일 전송
           rsync -avz --exclude '*-plain.jar' -e "ssh -i private_key -o StrictHostKeyChecking=no" ./build/libs/*.jar $USER@$HOST:/home/$USER/app/
+          # application.yml 파일을 서버로 전송
+          rsync -avz --exclude '*-plain.jar' -e "ssh -i private_key -o StrictHostKeyChecking=no" ./src/main/resources/application.yml $USER@$HOST:/home/$USER/app/          
           
           # EC2 연결
           ssh -i private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $USER@$HOST << 'EOF'
@@ -71,8 +73,8 @@ jobs:
               echo "No existing Java process found"
             fi          
           
-            # 새 프로세스 시작
-            nohup java -jar /home/$USER/app/*.jar > /home/$USER/app/app.log 2>&1 &
+            # 새 프로세스 시작            
+            nohup java -jar /home/$USER/app/*.jar --spring.config.location=file:/home/$USER/app/application.yml > /home/$USER/app/app.log 2>&1 &
             pid=$!
             echo "App started with PID: $pid"
             sleep 5
