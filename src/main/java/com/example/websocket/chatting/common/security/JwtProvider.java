@@ -16,11 +16,11 @@ import java.util.Date;
 public class JwtProvider {
     private SecretKey SECRET_KEY;
 
-    @Value("${jwt.secretkey}")
+    @Value("${jwt.secret.key}")
     private String secretKeyPlain;
 
     //jwt 요효시간
-    @Value("${jwt.expiration-time}")
+    @Value("${jwt.secret.expiration-time}")
     private long EXPIRATION_TIME; //1시간
 
     private SecretKey generateSecretKey() {
