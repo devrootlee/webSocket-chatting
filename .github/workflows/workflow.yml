@@ -25,8 +25,9 @@ jobs:
           echo "jwt.secretkey=${{ secrets.JWT_SECRETKEY }}" >> ./src/main/resources/application.yml
           echo "jwt.expiration-time=${{ secrets.JWT_EXPIRATIONTIME }}" >> ./src/main/resources/application.yml
       # property 확인
-      - name: Output application.yml
+      - name: Debug JWT_SECRETKEY
         run: |
+          echo "JWT_SECRETKEY from secrets: ${{ secrets.JWT_SECRETKEY }}"
           cat ./src/main/resources/application.yml
       # Java setting(러너에서 빌드용)
       - name: Set up JDK 17
