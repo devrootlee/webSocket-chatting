@@ -37,9 +37,11 @@ jobs:
           distribution: 'temurin'
       # Gradle 로 빌드(# 테스트 제외하고 JAR 생성)
       - name: Build with Gradle
-        run: | 
+        run: |
           chmod +x ./gradlew
           ./gradlew build -x test
+          echo "Checking JAR contents..."
+          jar tf build/libs/*.jar | grep application.yml || echo "ERROR: application.yml not found in JAR"
       # SSH 로 EC2에 배포
       - name: Deploy to EC2
         env:
