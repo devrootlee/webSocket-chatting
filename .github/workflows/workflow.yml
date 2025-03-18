@@ -24,6 +24,10 @@ jobs:
           echo "spring.data.mongodb.password=${{ secrets.DATA_MONGODB_PASSWORD }}" >> ./src/main/resources/application.yml
           echo "jwt.secretkey=${{ secrets.JWT_SECRETKEY }}" >> ./src/main/resources/application.yml
           echo "jwt.expiration-time=${{ secrets.JWT_EXPIRATIONTIME }}" >> ./src/main/resources/application.yml
+      # property 확인
+      - name: Output application.yml
+        run: |
+          cat ./src/main/resources/application.yml
       # Java setting(러너에서 빌드용)
       - name: Set up JDK 17
         uses: actions/setup-java@v4
