@@ -29,5 +29,6 @@ logging:
 
 #jwt
 jwt:
-  secretkey: ${JWT_SECRETKEY}
-  expiration-time: ${JWT_EXPIRATIONTIME}
+  secret:
+        key: ${JWT_SECRET_KEY}
+        expiration-time: ${JWT_SECRET_EXPIRATIONTIME}
