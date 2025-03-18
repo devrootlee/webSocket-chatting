@@ -20,6 +20,7 @@
         <img src="https://www.pngkey.com/png/detail/14-148130_minion-imagenes-de-100x100-pixeles.png" alt="Profile Picture" width="100" height="100">
         <p>이름: <span id="user-nickname">사용자 이름</span></p>
     </div>
+    <button id="logout-btn" onclick="logout()">로그아웃</button>
 </section>
 
 <!-- 하단: 가입된 멤버 리스트 -->
@@ -57,6 +58,20 @@
         }
     }
 
+    //로그아웃
+    async function logout() {
+        await fetch('/logout', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
+        });
+
+        sessionStorage.removeItem("nickname");
+        sessionStorage.removeItem("roomId");
+
+        window.location.href = '/';
+    }
+
+    //chat페이지로 이동
     async function fetchChat() {
         const response = await fetch('/chat', {
             method: 'GET',
@@ -114,13 +129,12 @@
                 headers: {'Content-Type': 'application/json'},
                 credentials: 'include', // 쿠키 포함 (jwt)
                 body: JSON.stringify({
-                    participantNickname: member.nickname // body에 member 정보 추가 (nickname 사용)
+                    participant: member.nickname // body에 member 정보 추가 (nickname 사용)
                 })
             });
 
             const data = await response.json();
             const roomId = data.data.chatroom.id;
-            const newFlag = data.data.new;
 
             if (response.ok && data.resultCode === 200) {
                 sessionStorage.setItem("roomId", roomId);

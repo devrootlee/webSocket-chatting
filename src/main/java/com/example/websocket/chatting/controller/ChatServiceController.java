@@ -99,8 +99,8 @@ public class ChatServiceController {
     }
 
     @GetMapping("/chatroomList")
-    public ResponseEntity<Map<String, Object>> chatroomList() {
-        return commonUtil.ApiResponse(chatService.chatroomList());
+    public ResponseEntity<Map<String, Object>> chatroomList(@AuthenticationPrincipal String nickname) {
+        return commonUtil.ApiResponse(chatService.chatroomList(nickname));
     }
 
     @GetMapping("/chatroomInfo")

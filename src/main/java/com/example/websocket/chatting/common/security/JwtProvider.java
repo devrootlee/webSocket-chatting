@@ -20,7 +20,8 @@ public class JwtProvider {
     private String secretKeyPlain;
 
     //jwt 요효시간
-    private final long EXPIRATION_TIME = 1000 * 60 * 60; //1시간
+    @Value("${jwt.expiration-time}")
+    private long EXPIRATION_TIME; //1시간
 
     private SecretKey generateSecretKey() {
         String keyBase64Encoded = Base64.getEncoder().encodeToString(secretKeyPlain.getBytes());

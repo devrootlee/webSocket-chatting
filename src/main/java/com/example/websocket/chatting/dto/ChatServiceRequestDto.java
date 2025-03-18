@@ -23,7 +23,7 @@ public class ChatServiceRequestDto {
     @Getter
     @Setter
     public static class chatroomCreate {
-        private String participantNickname;
+        private String participant;
     }
 
     @Getter

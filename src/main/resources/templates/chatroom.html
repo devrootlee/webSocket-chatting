@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="/css/chatroom.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <link rel="stylesheet" href="/css/footer.css">
 </head>
 <body>
 <!-- 뒤로가기 버튼 -->
@@ -119,6 +120,38 @@
             });
         }
     }
+
+    async function mypage() {
+        const response = await fetch('/mypage', {
+            method: 'GET',
+            headers: {'Content-Type': 'application/json'},
+            credentials: 'include'
+        });
+
+        if (response.ok) {
+            window.location.href = '/mypage';
+        } else {
+            alert('접근 권한이 없습니다');
+        }
+    }
+
+    async function chatroomList() {
+        const response = await fetch('/chatroomList', {
+            method: 'GET',
+            headers: {'Content-Type': 'application/json'},
+            credentials: 'include'
+        });
+
+        if (response.ok) {
+            window.location.href = '/chat';
+        } else {
+            alert('접근 권한이 없습니다');
+        }
+    }
 </script>
+<div class="footer-buttons">
+    <button class="left" onClick="mypage()">마이 페이지</button>
+    <button class="right" onClick="chatroomList()">채팅방</button>
+</div>
 </body>
 </html>
