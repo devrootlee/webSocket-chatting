@@ -10,15 +10,15 @@ spring:
     prefix: classpath:/templates/
     suffix: .html
     check-template-location: true
-#data
+  #data
   data:
     mongodb:
-      host: ec2-3-27-119-223.ap-southeast-2.compute.amazonaws.com
-      port: 27017
-      database: websocket_chatting
-      authentication-database: admin
-      username: dev.rootlee
-      password: Mylee45!
+      host: ${DATA_MONGODB_HOST}
+      port: ${DATA_MONGODB_PORT}
+      database: ${DATA_MONGODB_DATABASE}
+      authentication-database: ${DATA_MONGODB_AUTHENTICATIONDATABASE}
+      username: ${DATA_MONGODB_USERNAME}
+      password: ${DATA_MONGODB_PASSWORD}
       auto-index-creation: true
 
 # 로깅 설정 추가
@@ -27,3 +27,7 @@ logging:
     org.springframework.data.mongodb: DEBUG  # MongoDB 쿼리 로그 활성화
     org.springframework.data: DEBUG         # Spring Data 전체 디버그 로그 (선택적)
 
+#jwt
+jwt:
+  secretkey: ${JWT_SECRETKEY}
+  expiration-time: ${JWT_EXPIRATIONTIME}
