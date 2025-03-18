@@ -26,18 +26,6 @@ jobs:
           ./gradlew build -x test
           echo "Checking JAR contents..."
           jar tf build/libs/*.jar || echo "ERROR: JAR file not found"
-      # property 세팅 (application.yml 덮어쓰기)
-      - name: Set application.yml properties
-        run: |
-          # 환경 변수로 application.yml의 값을 덮어씁니다.
-          sed -i 's|${DATA_MONGODB_HOST}|${{ secrets.DATA_MONGODB_HOST }}|' src/main/resources/application.yml
-          sed -i 's|${DATA_MONGODB_PORT}|${{ secrets.DATA_MONGODB_PORT }}|' src/main/resources/application.yml
-          sed -i 's|${DATA_MONGODB_DATABASE}|${{ secrets.DATA_MONGODB_DATABASE }}|' src/main/resources/application.yml
-          sed -i 's|${DATA_MONGODB_AUTHENTICATIONDATABASE}|${{ secrets.DATA_MONGODB_AUTHENTICATIONDATABASE }}|' src/main/resources/application.yml
-          sed -i 's|${DATA_MONGODB_USERNAME}|${{ secrets.DATA_MONGODB_USERNAME }}|' src/main/resources/application.yml
-          sed -i 's|${DATA_MONGODB_PASSWORD}|${{ secrets.DATA_MONGODB_PASSWORD }}|' src/main/resources/application.yml
-          sed -i 's|${JWT_SECRET_KEY}|${{ secrets.JWT_SECRET_KEY }}|' src/main/resources/application.yml
-          sed -i 's|${JWT_SECRET_EXPIRATIONTIME}|${{ secrets.JWT_SECRET_EXPIRATIONTIME }}|' src/main/resources/application.yml
       # SSH 로 EC2에 배포
       - name: Deploy to EC2
         env:
@@ -71,7 +59,17 @@ jobs:
               sleep 2  # 프로세스가 완전히 종료될 때까지 대기
             else
               echo "No existing Java process found"
-            fi          
+            fi
+            
+            # 환경 변수 설정 (민감 정보 설정)
+            export DATA_MONGODB_HOST="${{ secrets.DATA_MONGODB_HOST }}"
+            export DATA_MONGODB_PORT="${{ secrets.DATA_MONGODB_PORT }}"
+            export DATA_MONGODB_DATABASE="${{ secrets.DATA_MONGODB_DATABASE }}"
+            export DATA_MONGODB_AUTHENTICATIONDATABASE="${{ secrets.DATA_MONGODB_AUTHENTICATIONDATABASE }}"
+            export DATA_MONGODB_USERNAME="${{ secrets.DATA_MONGODB_USERNAME }}"
+            export DATA_MONGODB_PASSWORD="${{ secrets.DATA_MONGODB_PASSWORD }}"
+            export JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}"
+            export JWT_SECRET_EXPIRATIONTIME="${{ secrets.JWT_SECRET_EXPIRATIONTIME }}"
           
             # 새 프로세스 시작            
             nohup java -jar /home/$USER/app/*.jar --spring.config.location=file:/home/$USER/app/application.yml > /home/$USER/app/app.log 2>&1 &
