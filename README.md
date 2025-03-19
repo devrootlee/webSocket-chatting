@@ -62,50 +62,95 @@ WebSocket과 STOMP 프로토콜을 적용하여 **실시간 양방향 통신**�
 ## ✅ 디렉토리 구조
 
 ```
-src
-└── main
-    ├── java
-    │   └── com.example.websocket.chatting
-    │       ├── Application.java
-    │       ├── common
-    │       │   ├── config
-    │       │   │   └── WebSocketConfig.java           # WebSocket 설정
-    │       │   ├── exception
-    │       │   │   ├── ExceptionController.java       # 글로벌 예외 처리
-    │       │   │   └── ValidationCode.java            # 커스텀 상태 코드
-    │       │   ├── security
-    │       │   │   ├── EncryptionConfig.java          # 패스워드 암호화
-    │       │   │   ├── JwtAuthenticationFilter.java   # JWT 검증 필터
-    │       │   │   ├── JwtProvider.java               # JWT 생성/검증/관리
-    │       │   │   └── SecurityConfig.java            # Spring Security 설정
-    │       │   └── util
-    │       │       └── CommonUtil.java
-    │       ├── controller
-    │       │   ├── ChatServiceController.java         # 채팅 REST API
-    │       │   └── ChatViewController.java            # 뷰 처리용 Controller
-    │       ├── dto
-    │       │   └── ChatServiceRequestDto.java
-    │       ├── model
-    │       │   ├── ChatMessage.java
-    │       │   ├── ChatRoom.java
-    │       │   └── Member.java
-    │       ├── repository
-    │       │   └── MemberRepository.java
-    │       └── service
-    │           ├── ChatService.java
-    │           └── impl
-    │               └── ChatServiceImpl.java
-    └── resources
-        ├── application.yml
-        ├── static/css
-        │   ├── chat.css
-        │   ├── index.css
-        │   ├── login.css
-        │   └── register.css
-        └── templates
-            ├── chat.html
-            ├── error.html
-            ├── index.html
-            ├── login.html
-            └── register.html
+└── src
+    └── main
+        ├── java
+        │   └── com
+        │       └── example
+        │           └── websocket
+        │               └── chatting
+        │                   ├── Application.java
+        │                   ├── common
+        │                   │   ├── config
+        │                   │   │   └── WebSocketConfig.java : websocket 설정
+        │                   │   ├── exception
+        │                   │   │   ├── ExceptionController.java : global 예외처리
+        │                   │   │   └── ValidationCode.java : 상태코드 enum
+        │                   │   ├── security
+        │                   │   │   ├── EncryptionConfig.java : 패스워드 암호화
+        │                   │   │   ├── JwtAuthenticationFilter.java : jwt 필터
+        │                   │   │   ├── JwtProvider.java : jwt 유틸(생성, 검증)
+        │                   │   │   └── SecurityConfig.java : spring security 설정
+        │                   │   └── util
+        │                   │       ├── CommonUtil.java : 공통 유틸(response)
+        │                   ├── controller
+        │                   │   ├── ChatServiceController.java : 채팅 서비스 REST 컨트롤러
+        │                   │   └── ChatViewController.java : 채팅 서비스 View 컨트롤러
+        │                   ├── dto
+        │                   │   ├── ChatServiceRequestDto.java : 채팅 서비스 REST 컨트롤러 requestDto
+        │                   │   └── MemberListDto.java : DTO Projection
+        │                   ├── model
+        │                   │   ├── Chatroom.java : chatroom 콜렉션
+        │                   │   ├── ChatroomMessage.java : chatroom_message 콜렌션
+        │                   │   └── Member.java : member 콜렉션
+        │                   ├── repository
+        │                   │   ├── ChatroomMessageRepository.java : chatroomMessage 레포지토리
+        │                   │   ├── ChatroomRepository.java : chatroom 레포지토리
+        │                   │   └── MemberRepository.java : member 레포지토리
+        │                   └── service
+        │                       └── ChatService.java : 스프링부트 실행
+        └── resources
+            ├── application.yml : application property
+            ├── static
+            │   ├── css : 스타일 시트
+            │   │   ├── chat.css
+            │   │   ├── chatroom-create.css
+            │   │   ├── chatroom.css
+            │   │   ├── footer.css
+            │   │   ├── index.css
+            │   │   ├── login.css
+            │   │   ├── mypage.css
+            │   │   └── register.css
+            │   └── favicon.ico : 파비콘
+            └── templates
+                ├── chat.html : 채팅방 리스트 화면
+                ├── chatroom.html : 채팅방 화면
+                ├── error.html : 에러 화면
+                ├── index.html : 메인 화면
+                ├── login.html : 로그인 화면
+                ├── mypage.html : 마이페이지 화면
+                └── register.html : 회원가입 화면
 ```
+
+## ✅ MongoDB Schema
+```
+- member(유저)
+{
+  _id : MongoDB 고유 ID (PK)
+  nickname : 유저 ID (unique)
+  password : 비밀번호
+}
+
+- chatroom(채팅방)
+{
+  _id : MongoDB 고유 ID (PK)
+  initiator : 생성자
+  participant : 참석자
+  lastMessage : 마지막 메시지
+}
+
+- chatroom_message(채팅방 메시지)
+{
+  _id : MongoDB 고유 ID (PK)
+  roomId : 방 ID - chatroom(_id)
+  sender : 발신자 nickname
+  timestamp : 메시지 발송 시간
+}
+```
+
+## ✅ 회고
+Websocket을 공부하고 사용해보고 싶어서 만들어본 프로젝트입니다.
+더 많은 기능을 구현하고 싶었지만 프론트도 같이 작업을 해줘야해서 이정도까지만 하고 마친다.
+고민하고 시간이 걸렸던 부분 :
+ - thymeleaf 에서 SSR 방식을 사용하지 않고 fetch API를 이용해서 데이터를 삽입할 때
+ - CI/CD 에서 application.yml 
