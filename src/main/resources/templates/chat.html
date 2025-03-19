@@ -57,7 +57,7 @@
                     `;
 
                     row.addEventListener('click', (e) => {
-                        localStorage.setItem("roomId", room.id);
+                        sessionStorage.setItem("roomId", room.id);
                         window.location.href = `/chatroom`;
                     });
 
