@@ -48,8 +48,6 @@ jobs:
           
           # 서버에 JAR 파일 전송
           rsync -avz --exclude '*-plain.jar' -e "ssh -i private_key -o StrictHostKeyChecking=no" ./build/libs/*.jar $USER@$HOST:/home/$USER/app/
-#           application.yml 파일을 서버로 전송
-#          rsync -avz --exclude '*-plain.jar' -e "ssh -i private_key -o StrictHostKeyChecking=no" ./src/main/resources/application.yml $USER@$HOST:/home/$USER/app/
           
           # EC2 연결
           ssh -i private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $USER@$HOST << 'EOF'
