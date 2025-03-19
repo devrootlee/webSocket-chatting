@@ -45,18 +45,19 @@ WebSocket과 STOMP 프로토콜을 적용하여 **실시간 양방향 통신**�
 
 ### 2. JWT 인증과 보안 강화
 - httpOnly 쿠키에 JWT 저장하여 **XSS 방지**
+- Access Token 단독 사용 → 만료 시 재로그인 필요 (Refresh Token 미사용)
+- JWT 만료 시 자동 로그아웃 -> 로그인 화면으로 이동
 - 필터(`JwtAuthenticationFilter`)를 통해 인증이 필요한 요청 차단
 - 중복 로그인 감지를 통해 동일 계정의 다중 접속 제한
 
-### 3. CSR 방식
-- 다른 프론트엔드 변경 고려(API 중심 설계)
-- 데이터를 가져올 때 Fetch API 를 사용하여 데이터 로드
+### 3. API 중심 설계
+- 현재 변경없이 다른 프론트엔드와 연동 가능
+- Thymeleaf 에서 데이터를 가져올 때 Fetch API 를 사용하여 데이터 로드
 
 ### 4.배포
-- 
-- GitHub Secrets + 환경 변수 를 사용하여 민감 정보 방어하고 환경변수에 값 넘겨주고 서버에 환경변수 설정 
-- 
----
+- AWS EC2(Ubuntu) + GitHub Actions 기반 CI/CD 구축
+- 로퍼티 값을 GitHub Secrets에 저장하여 민감 정보 보호
+- 배포 시 secrets 값을 서버 환경변수로 설정 → property 파일에 반영 후 실행
 
 ## ✅ 디렉토리 구조
 
