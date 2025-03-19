@@ -30,7 +30,7 @@
 
     function initChat() {
         const nickname = sessionStorage.getItem("nickname");
-        const roomId = localStorage.getItem("roomId");
+        const roomId = sessionStorage.getItem("roomId");
 
         if (!roomId) {
             alert("채팅방 ID가 없습니다.");
@@ -110,7 +110,7 @@
 
     function disconnectWebSocket() {
         if (stompClient !== null && stompClient.connected) {
-            const roomId = localStorage.getItem("roomId");
+            const roomId = sessionStorage.getItem("roomId");
             if (roomId) {
                 stompClient.send("/app/disconnect", {}, JSON.stringify({ roomId: roomId }));
                 console.log("Disconnect 메시지 전송, roomId: " + roomId);
@@ -148,6 +148,11 @@
             alert('접근 권한이 없습니다');
         }
     }
+
+    // 페이지를 벗어날 때 roomId 삭제
+    window.onbeforeunload = function () {
+        sessionStorage.removeItem("roomId");
+    };
 </script>
 <div class="footer-buttons">
     <button class="left" onClick="mypage()">마이 페이지</button>

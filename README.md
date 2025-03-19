@@ -56,7 +56,7 @@ WebSocket과 STOMP 프로토콜을 적용하여 **실시간 양방향 통신**�
 
 ### 4.배포
 - AWS EC2(Ubuntu) + GitHub Actions 기반 CI/CD 구축
-- 로퍼티 값을 GitHub Secrets에 저장하여 민감 정보 보호
+- 프로퍼티 값을 GitHub Secrets에 저장하여 민감 정보 보호
 - 배포 시 secrets 값을 서버 환경변수로 설정 → property 파일에 반영 후 실행
 
 ## ✅ 디렉토리 구조
