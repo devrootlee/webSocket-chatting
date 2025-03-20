@@ -80,8 +80,8 @@ jobs:
           
             # 새 프로세스 시작            
             nohup java -jar /home/$USER/app/*.jar > /home/$USER/app/app.log 2>&1 &
-            pid=$!
-            echo "App started with PID: $pid"
+            pid=\$!
+            echo "App started with PID: \$pid"
             sleep 10 # 서버 가동 대기
           
             # 포트 확인 (8080이 열려 있는지 체크)
