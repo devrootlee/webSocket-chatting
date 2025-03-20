@@ -79,7 +79,7 @@ jobs:
             export JWT_SECRET_EXPIRATIONTIME="${{ secrets.JWT_SECRET_EXPIRATIONTIME }}"
           
             # 새 프로세스 시작            
-            nohup java -jar /home/$USER/app/*.jar --spring.config.location=file:/home/$USER/app/application.yml > /home/$USER/app/app.log 2>&1 &
+            nohup java -jar /home/$USER/app/*.jar > /home/$USER/app/app.log 2>&1 &
             pid=$!
             echo "App started with PID: $pid"
             sleep 5
