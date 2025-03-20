@@ -43,21 +43,30 @@ WebSocket과 STOMP 프로토콜을 적용하여 **실시간 양방향 통신**�
 - 채팅방 입장 시 실시간 연결 생성, 퇴장 시 연결 종료 → **리소스 최적화**
 - WebSocket 핸드쉐이크와 인증 절차는 JWT로 처리
 
+📌 해당 코드 파일: [WebSocketConfig.java](src/main/java/com/example/websocket/chatting/common/config/WebSocketConfig.java)
+ 
 ### 2. JWT 인증과 보안 강화
 - httpOnly 쿠키에 JWT 저장하여 **XSS 방지**
 - Access Token 단독 사용 → 만료 시 재로그인 필요 (Refresh Token 미사용)
 - JWT 만료 시 자동 로그아웃 -> 로그인 화면으로 이동
 - 필터(`JwtAuthenticationFilter`)를 통해 인증이 필요한 요청 차단
-- 중복 로그인 감지를 통해 동일 계정의 다중 접속 제한
+- 중복 로그인 감지를 통해 동일 계정의 다중 접속 제한 
+ 
+📌 해당 코드 파일: [SecurityConfig.java](src/main/java/com/example/websocket/chatting/common/security/SecurityConfig.java)
 
 ### 3. API 중심 설계
 - 현재 변경없이 다른 프론트엔드와 연동 가능
 - Thymeleaf 에서 데이터를 가져올 때 Fetch API 를 사용하여 데이터 로드
 
+📌해당 코드 파일: [templates](src/main/resources/templates)
+
+
 ### 4.배포
 - AWS EC2(Ubuntu) + GitHub Actions 기반 CI/CD 구축
 - 프로퍼티 값을 GitHub Secrets에 저장하여 민감 정보 보호
 - 배포 시 secrets 값을 서버 환경변수로 설정 → property 파일에 반영 후 실행
+
+📌해당 코드 파일: [workflow.yml](.github/workflows/workflow.yml)
 
 ## ✅ 디렉토리 구조
 
@@ -149,8 +158,8 @@ WebSocket과 STOMP 프로토콜을 적용하여 **실시간 양방향 통신**�
 ```
 
 ## ✅ 회고
-Websocket을 공부하고 사용해보고 싶어서 만들어본 프로젝트입니다.
-더 많은 기능을 구현하고 싶었지만 프론트도 같이 작업을 해줘야해서 이정도까지만 하고 마친다.
+Websocket,MongoDB, 을 공부하고 사용해보고 싶어서 만들어본 프로젝트입니다.
+더 많은 기능을 구현하고 싶었지만 프론트도 같이 작업을 해줘야해서 이정도까지만 하고 마칩니다.
 고민하고 시간이 걸렸던 부분 :
- - thymeleaf 에서 SSR 방식을 사용하지 않고 fetch API를 이용해서 데이터를 삽입할 때
- - CI/CD 에서 application.yml 
+ - thymeleaf 에서 SSR 방식을 사용하지 않고 fetch API를 이용해서 데이터를 삽입 방식
+ - CI/CD workflow 에서 application.yml 의 민감정보를 어떤식으로 넣어야할 지  
