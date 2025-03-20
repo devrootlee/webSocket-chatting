@@ -33,14 +33,14 @@ jobs:
           PRIVATE_KEY: ${{ secrets.SERVER_PEMKEY }}
           HOST: ${{secrets.SERVER_HOST}}
           USER: ${{secrets.SERVER_USER}}
-#          DATA_MONGODB_HOST: ${{ secrets.DATA_MONGODB_HOST }}
-#          DATA_MONGODB_PORT: ${{ secrets.DATA_MONGODB_PORT }}
-#          DATA_MONGODB_DATABASE: ${{ secrets.DATA_MONGODB_DATABASE }}
-#          DATA_MONGODB_AUTHENTICATIONDATABASE: ${{ secrets.DATA_MONGODB_AUTHENTICATIONDATABASE }}
-#          DATA_MONGODB_USERNAME: ${{ secrets.DATA_MONGODB_USERNAME }}
-#          DATA_MONGODB_PASSWORD: ${{ secrets.DATA_MONGODB_PASSWORD }}
-#          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-#          JWT_SECRET_EXPIRATIONTIME: ${{ secrets.JWT_SECRET_EXPIRATIONTIME }}
+          DATA_MONGODB_HOST: ${{ secrets.DATA_MONGODB_HOST }}
+          DATA_MONGODB_PORT: ${{ secrets.DATA_MONGODB_PORT }}
+          DATA_MONGODB_DATABASE: ${{ secrets.DATA_MONGODB_DATABASE }}
+          DATA_MONGODB_AUTHENTICATIONDATABASE: ${{ secrets.DATA_MONGODB_AUTHENTICATIONDATABASE }}
+          DATA_MONGODB_USERNAME: ${{ secrets.DATA_MONGODB_USERNAME }}
+          DATA_MONGODB_PASSWORD: ${{ secrets.DATA_MONGODB_PASSWORD }}
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          JWT_SECRET_EXPIRATIONTIME: ${{ secrets.JWT_SECRET_EXPIRATIONTIME }}
         run: |
           # SSH 키 설정
           echo "$PRIVATE_KEY" > private_key
