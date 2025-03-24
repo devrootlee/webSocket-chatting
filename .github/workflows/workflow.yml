@@ -13,6 +13,18 @@ jobs:
       # 코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v4
+      # Gradle 캐싱으로 빌드 속도 개선
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          # 캐시 경로: Gradle 캐시와 래퍼 파일
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          # 캐시 키: OS와 Gradle 파일 해시로 고유성 보장
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          # 복원 키: 이전 캐시 재사용 가능
+          restore-keys: ${{ runner.os }}-gradle-
       # Java setting(러너에서 빌드용)
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -22,10 +34,18 @@ jobs:
       # Gradle 로 빌드(# 테스트 제외하고 JAR 생성)
       - name: Build with Gradle
         run: |
-          chmod +x ./gradlew
-          ./gradlew build -x test
-          echo "Checking JAR contents..."
-          jar tf build/libs/*.jar || echo "ERROR: JAR file not found"
+            chmod +x ./gradlew
+            if ! ./gradlew build -x test; then
+              echo "❌ Gradle build failed"
+              exit 1
+            fi
+            echo "✅ Build successful"
+            ls -lh build/libs/
+            if [ ! -f build/libs/app.jar ] || ! jar tf build/libs/app.jar; then
+              echo "❌ app.jar not found or invalid"
+              exit 1
+            fi
+            echo "✅ app.jar verified"
       # SSH 로 EC2에 배포
       - name: Deploy to EC2
         env:
@@ -45,55 +65,87 @@ jobs:
           # SSH 키 설정
           echo "$PRIVATE_KEY" > private_key
           chmod 600 private_key
-          
-          # 서버에 JAR 파일 전송
-          rsync -avz --exclude '*-plain.jar' -e "ssh -i private_key -o StrictHostKeyChecking=no" ./build/libs/*.jar $USER@$HOST:/home/$USER/app/
-          
+
           # EC2 연결
-          ssh -i private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $USER@$HOST << 'EOF'
-            echo 'SSH connection successful'
+          ssh -i private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $USER@$HOST << 'EOF' || { echo "❌ssh failed"; exit 1; }
+            echo "✅SSH connection successful"
+
+          # 디렉토리 확인 or 생성
+          mkdir -p /home/$USER/app/
+          ls -lh /home/$USER/app/
           
-            # 디렉토리 확인 or 생성
-            mkdir -p /home/$USER/app/
-            ls -lh /home/$USER/app/
+          # 파일 전송: app-new.jar로 저장
+          echo "Receiving new JAR as app-new.jar..."
+          cat > /home/$USER/app/app-new.jar || { echo "File transfer failed"; exit 1; }
+          ls -lh /home/$USER/app/app-new.jar  # 전송된 파일 확인
+          echo "✅ File transfer completed: app-new.jar"
           
-            # 기존 Java 프로세스 종료
-            echo "Finding and killing existing Java process..."
-            pid=$(ps aux | grep '[j]ava -jar /home/'"$USER"'/app/.*\.jar' | awk '{print $2}')
-            if [ -n "$pid" ]; then
-              echo "Killing process with PID: $pid"
-              kill -9 $pid
-              sleep 2  # 프로세스가 완전히 종료될 때까지 대기
-            else
-              echo "No existing Java process found"
-            fi
-            
-            # 환경 변수 설정 (민감 정보 설정)
-            export DATA_MONGODB_HOST="${{ secrets.DATA_MONGODB_HOST }}"
-            export DATA_MONGODB_PORT="${{ secrets.DATA_MONGODB_PORT }}"
-            export DATA_MONGODB_DATABASE="${{ secrets.DATA_MONGODB_DATABASE }}"
-            export DATA_MONGODB_AUTHENTICATIONDATABASE="${{ secrets.DATA_MONGODB_AUTHENTICATIONDATABASE }}"
-            export DATA_MONGODB_USERNAME="${{ secrets.DATA_MONGODB_USERNAME }}"
-            export DATA_MONGODB_PASSWORD="${{ secrets.DATA_MONGODB_PASSWORD }}"
-            export JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}"
-            export JWT_SECRET_EXPIRATIONTIME="${{ secrets.JWT_SECRET_EXPIRATIONTIME }}"
+          # 환경 변수 설정 (민감 정보 설정)
+          export DATA_MONGODB_HOST="${{ secrets.DATA_MONGODB_HOST }}"
+          export DATA_MONGODB_PORT="${{ secrets.DATA_MONGODB_PORT }}"
+          export DATA_MONGODB_DATABASE="${{ secrets.DATA_MONGODB_DATABASE }}"
+          export DATA_MONGODB_AUTHENTICATIONDATABASE="${{ secrets.DATA_MONGODB_AUTHENTICATIONDATABASE }}"
+          export DATA_MONGODB_USERNAME="${{ secrets.DATA_MONGODB_USERNAME }}"
+          export DATA_MONGODB_PASSWORD="${{ secrets.DATA_MONGODB_PASSWORD }}"
+          export JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}"
+          export JWT_SECRET_EXPIRATIONTIME="${{ secrets.JWT_SECRET_EXPIRATIONTIME }}"          
           
-            # 새 프로세스 시작            
-            nohup java -jar /home/$USER/app/*.jar > /home/$USER/app/app.log 2>&1 &
-            pid=$!
-            echo "App started with PID: $pid"
-            sleep 10 # 서버 가동 대기
+          # 새 JAR(app-new.jar)를 8081 포트에서 실행
+          echo "Starting new JAR on port 8081..."
+          nohup java -jar /home/$USER/app/app-new.jar --server.port=8081 > /home/$USER/app/app-new.log 2>&1 &
+          NEW_PID=\$!
+          sleep 10  # 새 버전 시작 대기
+
+          # 8081 포트 헬스 체크
+          if curl -s http://localhost:8081/actuator/health > /dev/null; then
+            echo "✅ New version started on port 8081 with PID: \$NEW_PID"
           
-            # 포트 확인 (8080이 열려 있는지 체크)
-            pid=$(lsof -ti :8080)
-            if [ -n "$pid" ]; then
-              echo "✅ Spring Boot 서버가 정상적으로 8080 포트에서 실행 중입니다. PID: $pid"
-              echo $pid > /home/$USER/app/app.pid  # PID 저장
-            else
-              echo "❌ Spring Boot 서버가 8080 포트에서 실행되지 않음."
-              echo "Last 20 lines of app.log:"
-              tail -n 20 /home/$USER/app/app.log
-              exit 1
-            fi
-          EOF
-          echo "Deployment finished"
+             # 기존 8080 포트 프로세스 종료
+             OLD_PID=\$(ps aux | grep '[j]ava -jar /home/$USER/app/app.jar' | awk '{print \$2}')
+             if [ -n "\$OLD_PID" ]; then
+               echo "Killing old process on port 8080 with PID: \$OLD_PID"
+               kill -9 \$OLD_PID
+               sleep 2  # 기존 프로세스 종료 대기
+             else
+              echo "No existing process on port 8080"
+             fi
+          
+             # 기존 app.jar 백업 (타임스탬프 추가)
+             if [ -f /home/$USER/app/app.jar ]; then
+               TIMESTAMP=\$(date +%Y%m%d_%H%M%S)
+               mkdir -p /home/$USER/app/backups
+               mv /home/$USER/app/app.jar /home/$USER/app/backups/app_\$TIMESTAMP.jar
+               echo "Backed up existing JAR to /home/$USER/app/backups/app_\$TIMESTAMP.jar"
+             fi
+          
+             # 새 버전을 8080 포트로 전환
+             kill -9 \$NEW_PID  # 8081 프로세스 종료
+             mv /home/$USER/app/app-new.jar /home/$USER/app/app.jar
+             nohup java -jar /home/$USER/app/app.jar > /home/$USER/app/app.log 2>&1 &
+             FINAL_PID=\$!
+             sleep 10  # 8080 시작 대기
+             # 8080 포트 헬스 체크
+             if curl -s http://localhost:8080/actuator/health > /dev/null; then
+               echo "✅ Deployment successful on port 8080 with PID: \$FINAL_PID"
+               echo \$FINAL_PID > /home/$USER/app/app.pid
+             else
+               echo "❌ Deployment on 8080 failed, rolling back..."
+               kill -9 \$FINAL_PID 2>/dev/null
+              # 최신 백업 JAR로 롤백
+               LATEST_BACKUP=\$(ls -t /home/$USER/app/backups/app_*.jar | head -n 1)
+               if [ -n "\$LATEST_BACKUP" ]; then
+                 nohup java -jar \$LATEST_BACKUP > /home/$USER/app/app.log 2>&1 &
+                 echo "Rolled back to \$LATEST_BACKUP"
+               fi
+               tail -n 20 /home/$USER/app/app.log
+               exit 1
+             fi
+           else
+             echo "❌ New version failed on port 8081, aborting..."
+             kill -9 \$NEW_PID 2>/dev/null
+             rm -f /home/$USER/app/app-new.jar  # 실패 시 app-new.jar 삭제
+             tail -n 20 /home/$USER/app/app-new.log
+             exit 1
+           fi
+         EOF
+         echo "Deployment finished"  # 배포 완료 메시지

@@ -65,6 +65,7 @@ WebSocket과 STOMP 프로토콜을 적용하여 **실시간 양방향 통신**�
 - AWS EC2(Ubuntu) + GitHub Actions 기반 CI/CD 구축
 - 프로퍼티 값을 GitHub Secrets에 저장하여 민감 정보 보호
 - 배포 시 secrets 값을 서버 환경변수로 설정 → property 파일에 반영 후 실행
+- Zero-Downtime 워크플로우 적용
 
 📌해당 코드 파일: [workflow.yml](.github/workflows/workflow.yml)
 
@@ -158,8 +159,8 @@ WebSocket과 STOMP 프로토콜을 적용하여 **실시간 양방향 통신**�
 ```
 
 ## ✅ 회고
-Websocket,MongoDB, 을 공부하고 사용해보고 싶어서 만들어본 프로젝트입니다.
+- Websocket,MongoDB,CI/CD를 공부하고 사용해보고 싶어서 만들어본 프로젝트입니다.
 더 많은 기능을 구현하고 싶었지만 프론트도 같이 작업을 해줘야해서 이정도까지만 하고 마칩니다.
-고민하고 시간이 걸렸던 부분 :
- - thymeleaf 에서 SSR 방식을 사용하지 않고 fetch API를 이용해서 데이터를 삽입 방식
- - CI/CD workflow 에서 application.yml 의 민감정보를 어떤식으로 넣어야할 지  
+- 고민하고 시간이 걸렸던 부분
+  - thymeleaf 에서 SSR 방식을 사용하지 않고 fetch API를 이용해서 데이터를 삽입 방식
+  - CI/CD workflow 에서 application.yml 의 민감정보를 어떤식으로 넣어야할 지

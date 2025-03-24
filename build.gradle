@@ -5,7 +5,6 @@ plugins {
 }
 
 group = 'com.example.websocket.chatting'
-version = '1.0.0'
 sourceCompatibility = '17'
 
 repositories {
@@ -29,6 +28,8 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5' //JSON 직렬화 지원
+    //health check
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     //Lombok(코드 간소화)
     implementation 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -46,6 +47,11 @@ sourceSets {
 
 jar {
     enabled = false
+}
+
+bootJar {
+    archiveBaseName = 'webSocket_chatting'
+    archiveFileName = 'app.jar'
 }
 
 tasks.named('test') {
