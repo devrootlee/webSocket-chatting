@@ -34,22 +34,22 @@ jobs:
       # Gradle 로 빌드(# 테스트 제외하고 JAR 생성)
       - name: Build with Gradle
         run: |
-            chmod +x ./gradlew
-            if ! ./gradlew build -x test; then
-              echo "❌ Gradle build failed"
-              exit 1
-            fi
-            echo "✅ Build successful"
-            ls -lh build/libs/
-            if [ ! -f build/libs/app.jar ] || ! jar tf build/libs/app.jar; then
-              echo "❌ app.jar not found or invalid"
-              exit 1
-            fi
-            echo "✅ app.jar verified"
+          chmod +x ./gradlew
+          if ! ./gradlew build -x test; then
+            echo "❌ Gradle build failed"
+            exit 1
+          fi
+          echo "✅ Build successful"
+          ls -lh build/libs/
+          if [ ! -f build/libs/app.jar ] || ! jar tf build/libs/app.jar; then
+            echo "❌ app.jar not found or invalid"
+            exit 1
+          fi
+          echo "✅ app.jar verified"
       # SSH 로 EC2에 배포
       - name: Deploy to EC2
         env:
-      # 환경 변수로 민감 정보 정의
+          # 환경 변수로 민감 정보 정의
           PRIVATE_KEY: ${{ secrets.SERVER_PEMKEY }}
           HOST: ${{secrets.SERVER_HOST}}
           USER: ${{secrets.SERVER_USER}}
@@ -147,5 +147,5 @@ jobs:
              tail -n 20 /home/$USER/app/app-new.log
              exit 1
            fi
-         EOF
-         echo "Deployment finished"  # 배포 완료 메시지
+          EOF
+          echo "Deployment finished"  # 배포 완료 메시지
