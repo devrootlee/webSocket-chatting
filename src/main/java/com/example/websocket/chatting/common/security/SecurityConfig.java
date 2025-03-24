@@ -23,7 +23,7 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/error","/login", "/register", "/css/**").permitAll() //인증필요없는 화면
-                        .requestMatchers(HttpMethod.GET, "/checkNickname", "loginStatus").permitAll() //[GET] rest api
+                        .requestMatchers(HttpMethod.GET, "/health","/checkNickname", "loginStatus").permitAll() //[GET] rest api
                         .requestMatchers(HttpMethod.POST, "/register", "/login").permitAll() //[POST] rest api
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // 필터 추가

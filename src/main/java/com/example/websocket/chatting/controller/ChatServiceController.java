@@ -35,6 +35,11 @@ public class ChatServiceController {
         this.messagingTemplate = simpMessagingTemplate;
     }
 
+    @GetMapping("/health")
+    public ResponseEntity<String> health() {
+        return ResponseEntity.ok("success");
+    }
+
     @GetMapping("/checkNickname")
     public ResponseEntity<Map<String, Object>> checkNickName(@RequestParam String nickname) {
         return commonUtil.ApiResponse(chatService.userNickNameCheck(nickname));
