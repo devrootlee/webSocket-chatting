@@ -67,19 +67,18 @@ jobs:
           echo "$PRIVATE_KEY" > private_key
           chmod 600 private_key
           
-          # 파일 전송 (scp)
-          echo "Transferring app.jar to EC2..."
-          scp -i private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null build/libs/app.jar $USER@$HOST:/home/$USER/app/app-new.jar || { echo "❌ File transfer failed"; exit 1; }
+          # SSH 연결 테스트 및 디렉토리 준비
+          ssh -i private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $USER@$HOST "mkdir -p /home/$USER/app/ && chmod 755 /home/$USER/app/ && echo 'SSH works'" || { echo "❌ SSH connection or directory setup failed"; exit 1; }
+          echo "✅ SSH connection successful"
+
+          # rsync로 파일 전송
+          echo "Transferring app.jar to EC2 with rsync..."
+          rsync -avz -e "ssh -i private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" build/libs/app.jar $USER@$HOST:/home/$USER/app/app-new.jar || { echo "❌ rsync failed"; exit 1; }
           echo "✅ File transfer completed"
 
           # EC2 연결
           ssh -i private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $USER@$HOST << 'EOF' || { echo "❌ssh failed"; exit 1; }
-            echo "✅SSH connection successful"
-
-          # 디렉토리 확인 or 생성
-          mkdir -p /home/$USER/app/
-          chmod 755 /home/$USER/app/
-          ls -lh /home/$USER/app/              
+            echo "✅SSH connection successful"           
           
           # 환경 변수 설정 (민감 정보 설정)
           export DATA_MONGODB_HOST="${{ secrets.DATA_MONGODB_HOST }}"
