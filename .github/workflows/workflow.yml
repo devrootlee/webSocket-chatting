@@ -94,18 +94,18 @@ jobs:
           # 새 JAR(app-new.jar)를 8081 포트에서 실행
           echo "Starting new JAR on port 8081..."
           nohup java -jar /home/$USER/app/app-new.jar --server.port=8081 > /home/$USER/app/app-new.log 2>&1 &
-          NEW_PID=\$!
+          NEW_PID=$!
           sleep 10  # 새 버전 시작 대기
 
           # 8081 포트 헬스 체크
           if curl -s http://ec2-3-27-119-223.ap-southeast-2.compute.amazonaws.com:8081/actuator/health > /dev/null; then
-            echo "✅ New version started on port 8081 with PID: \$NEW_PID"
+            echo "✅ New version started on port 8081 with PID: $NEW_PID"
           
              # 기존 8080 포트 프로세스 종료
-             OLD_PID=\$(ps aux | grep '[j]ava -jar /home/$USER/app/app.jar' | awk '{print \$2}')
-             if [ -n "\$OLD_PID" ]; then
-               echo "Killing old process on port 8080 with PID: \$OLD_PID"
-               kill -9 \$OLD_PID
+             OLD_PID=$(ps aux | grep '[j]ava -jar /home/$USER/app/app.jar' | awk '{print $2}')
+             if [ -n "$OLD_PID" ]; then
+               echo "Killing old process on port 8080 with PID: $OLD_PID"
+               kill -9 $OLD_PID
                sleep 2  # 기존 프로세스 종료 대기
              else
               echo "No existing process on port 8080"
@@ -113,37 +113,37 @@ jobs:
           
              # 기존 app.jar 백업 (타임스탬프 추가)
              if [ -f /home/$USER/app/app.jar ]; then
-               TIMESTAMP=\$(date +%Y%m%d_%H%M%S)
+               TIMESTAMP=$(date +%Y%m%d_%H%M%S)
                mkdir -p /home/$USER/app/backups
-               mv /home/$USER/app/app.jar /home/$USER/app/backups/app_\$TIMESTAMP.jar
-               echo "Backed up existing JAR to /home/$USER/app/backups/app_\$TIMESTAMP.jar"
+               mv /home/$USER/app/app.jar /home/$USER/app/backups/app_$TIMESTAMP.jar
+               echo "Backed up existing JAR to /home/$USER/app/backups/app_$TIMESTAMP.jar"
              fi
           
              # 새 버전을 8080 포트로 전환
-             kill -9 \$NEW_PID  # 8081 프로세스 종료
+             kill -9 $NEW_PID  # 8081 프로세스 종료
              mv /home/$USER/app/app-new.jar /home/$USER/app/app.jar
              nohup java -jar /home/$USER/app/app.jar > /home/$USER/app/app.log 2>&1 &
-             FINAL_PID=\$!
+             FINAL_PID=$!
              sleep 10  # 8080 시작 대기
              # 8080 포트 헬스 체크
              if curl -s http://ec2-3-27-119-223.ap-southeast-2.compute.amazonaws.com:8080/actuator/health > /dev/null; then
-               echo "✅ Deployment successful on port 8080 with PID: \$FINAL_PID"
-               echo \$FINAL_PID > /home/$USER/app/app.pid
+               echo "✅ Deployment successful on port 8080 with PID: $FINAL_PID"
+               echo $FINAL_PID > /home/$USER/app/app.pid
              else
                echo "❌ Deployment on 8080 failed, rolling back..."
-               kill -9 \$FINAL_PID 2>/dev/null
+               kill -9 $FINAL_PID 2>/dev/null
               # 최신 백업 JAR로 롤백
-               LATEST_BACKUP=\$(ls -t /home/$USER/app/backups/app_*.jar | head -n 1)
-               if [ -n "\$LATEST_BACKUP" ]; then
-                 nohup java -jar \$LATEST_BACKUP > /home/$USER/app/app.log 2>&1 &
-                 echo "Rolled back to \$LATEST_BACKUP"
+               LATEST_BACKUP=$(ls -t /home/$USER/app/backups/app_*.jar | head -n 1)
+               if [ -n "$LATEST_BACKUP" ]; then
+                 nohup java -jar $LATEST_BACKUP > /home/$USER/app/app.log 2>&1 &
+                 echo "Rolled back to $LATEST_BACKUP"
                fi
                tail -n 20 /home/$USER/app/app.log
                exit 1
              fi
           else
              echo "❌ New version failed on port 8081, aborting..."
-             kill -9 \$NEW_PID 2>/dev/null
+             kill -9 $NEW_PID 2>/dev/null
              rm -f /home/$USER/app/app-new.jar  # 실패 시 app-new.jar 삭제
              tail -n 20 /home/$USER/app/app-new.log
              exit 1
