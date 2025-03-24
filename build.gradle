@@ -46,9 +46,11 @@ sourceSets {
 }
 
 jar {
-    archiveBaseName = 'app'
-    version = ''
     enabled = false
+}
+
+bootJar {
+    archiveFileName = 'app.jar'
 }
 
 tasks.named('test') {
