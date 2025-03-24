@@ -73,7 +73,7 @@ jobs:
 
           # rsync로 파일 전송
           echo "Transferring app.jar to EC2 with rsync..."
-          rsync -avz -e "ssh -i private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" build/libs/app.jar $USER@$HOST:/home/$USER/app/app-new.jar || { echo "❌ rsync failed"; exit 1; }
+          rsync -avz --exclude '*-plain.jar' -e "ssh -i private_key -o StrictHostKeyChecking=no" ./build/libs/*.jar $USER@$HOST:/home/$USER/app/app-new.jar || { echo "❌ rsync failed"; exit 1; }
           echo "✅ File transfer completed"
 
           # EC2 연결
