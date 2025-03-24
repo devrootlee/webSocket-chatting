@@ -97,7 +97,7 @@ jobs:
           sleep 10  # 새 버전 시작 대기
 
           # 8081 포트 헬스 체크
-          if curl -s http://localhost:8081/actuator/health > /dev/null; then
+          if curl -s http://ec2-3-27-119-223.ap-southeast-2.compute.amazonaws.com:8081/actuator/health > /dev/null; then
             echo "✅ New version started on port 8081 with PID: \$NEW_PID"
           
              # 기존 8080 포트 프로세스 종료
@@ -125,7 +125,7 @@ jobs:
              FINAL_PID=\$!
              sleep 10  # 8080 시작 대기
              # 8080 포트 헬스 체크
-             if curl -s http://localhost:8080/actuator/health > /dev/null; then
+             if curl -s http://ec2-3-27-119-223.ap-southeast-2.compute.amazonaws.com:8080/actuator/health > /dev/null; then
                echo "✅ Deployment successful on port 8080 with PID: \$FINAL_PID"
                echo \$FINAL_PID > /home/$USER/app/app.pid
              else
@@ -140,12 +140,12 @@ jobs:
                tail -n 20 /home/$USER/app/app.log
                exit 1
              fi
-           else
+          else
              echo "❌ New version failed on port 8081, aborting..."
              kill -9 \$NEW_PID 2>/dev/null
              rm -f /home/$USER/app/app-new.jar  # 실패 시 app-new.jar 삭제
              tail -n 20 /home/$USER/app/app-new.log
              exit 1
-           fi
+          fi
           EOF
           echo "Deployment finished"  # 배포 완료 메시지
