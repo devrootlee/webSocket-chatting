@@ -46,12 +46,9 @@ sourceSets {
 }
 
 jar {
+    archiveBaseName = 'app'
+    version = ''
     enabled = false
-}
-
-bootJar {
-    archiveBaseName = 'webSocket_chatting'
-    archiveFileName = 'app.jar'
 }
 
 tasks.named('test') {
