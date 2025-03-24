@@ -78,12 +78,7 @@ jobs:
 
           # EC2 연결
           ssh -i private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $USER@$HOST << 'EOF' || { echo "❌ssh failed"; exit 1; }
-            echo "✅SSH connection successful"
-
-          # 디렉토리 확인 or 생성
-          mkdir -p /home/$USER/app/
-          chmod 755 /home/$USER/app/
-          ls -lh /home/$USER/app/              
+            echo "✅SSH connection successful"           
           
           # 환경 변수 설정 (민감 정보 설정)
           export DATA_MONGODB_HOST="${{ secrets.DATA_MONGODB_HOST }}"
