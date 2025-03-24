@@ -77,7 +77,7 @@ jobs:
           
           # 파일 전송: app-new.jar로 저장
           echo "Receiving new JAR as app-new.jar..."
-          rsync -avz -e "ssh -i private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" build/libs/app.jar $USER@$HOST:/home/$USER/app/app-new.jar
+          rsync -avz --exclude '*-plain.jar' -e "ssh -i private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" build/libs/app.jar $USER@$HOST:/home/$USER/app/app-new.jar
           ls -lh /home/$USER/app/app-new.jar  # 전송된 파일 확인
           echo "✅ File transfer completed: app-new.jar"
           
