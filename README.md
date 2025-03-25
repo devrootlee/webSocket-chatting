@@ -62,18 +62,32 @@ WebSocket과 STOMP 프로토콜을 적용하여 **실시간 양방향 통신**�
 
 ### 4.배포
 - AWS EC2(Ubuntu) + GitHub Actions 기반 CI/CD 구축
-- 프로퍼티 값을 GitHub Secrets에 저장하여 민감 정보 보호
-- 배포 시 secrets 값을 서버 환경변수로 설정 → property 파일에 반영 후 jar 실행
-- Zero-Downtime 워크플로우 적용
+- 프로퍼티 값을 GitHub Secrets에 저장 → 배포 시 secrets 값을 서버 환경변수로 설정 → property 파일에 반영하여 민감 정보 보호
+- ZeroDownTime 배포 적용
+  - 배포 → 새로운 jar 파일을 기존 포트(8080)가 아닌 다른 포트(8081)에서 실행 → health 체크 → health check 성공 →  
 
 📌해당 코드 파일: [workflow.yml](.github/workflows/workflow.yml)
 
-### 5.모니터링
+### 5.모니터링 설정
 - Prometheus(매트릭 수집)
   - EC2 및 애플리케이션 상태를 모니터링하는 역할을 함
+#### prometheus.yml
+```
+scrape_configs:
+  - job_name: "spring-boot"
+    metrics_path: "/actuator/prometheus"  # 프로메테우스 매트릭 API endpoint
+    static_configs:
+      - targets: ["ec2-3-27-119-223.ap-southeast-2.compute.amazonaws.com:8080"] # 서버 주소 
+
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+```
 - Grafana(대시보드)
   - Prometheus에서 수집한 데이터를 시각화하는 역할을 함
 
+- 모니터링 대시보드
+![img.png](img.png)
 
 ## ✅ 디렉토리 구조
 
