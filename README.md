@@ -41,7 +41,6 @@ WebSocket과 STOMP 프로토콜을 적용하여 **실시간 양방향 통신**�
 ### 1. WebSocket + STOMP 구조
 - STOMP 프로토콜을 적용하여 구독/발행 구조를 사용
 - 채팅방 입장 시 실시간 연결 생성, 퇴장 시 연결 종료 → **리소스 최적화**
-- WebSocket 핸드쉐이크와 인증 절차는 JWT로 처리
 
 📌 해당 코드 파일: [WebSocketConfig.java](src/main/java/com/example/websocket/chatting/common/config/WebSocketConfig.java)
  
@@ -55,7 +54,7 @@ WebSocket과 STOMP 프로토콜을 적용하여 **실시간 양방향 통신**�
 📌 해당 코드 파일: [SecurityConfig.java](src/main/java/com/example/websocket/chatting/common/security/SecurityConfig.java)
 
 ### 3. API 중심 설계
-- 현재 변경없이 다른 프론트엔드와 연동 가능
+- 현재 코드 변경없이 다른 프론트엔드와 연동 가능([swagger](http://ec2-3-27-119-223.ap-southeast-2.compute.amazonaws.com/swagger-ui/index.html))
 - Thymeleaf 에서 데이터를 가져올 때 Fetch API 를 사용하여 데이터 로드
 
 📌해당 코드 파일: [templates](src/main/resources/templates)
@@ -64,10 +63,17 @@ WebSocket과 STOMP 프로토콜을 적용하여 **실시간 양방향 통신**�
 ### 4.배포
 - AWS EC2(Ubuntu) + GitHub Actions 기반 CI/CD 구축
 - 프로퍼티 값을 GitHub Secrets에 저장하여 민감 정보 보호
-- 배포 시 secrets 값을 서버 환경변수로 설정 → property 파일에 반영 후 실행
+- 배포 시 secrets 값을 서버 환경변수로 설정 → property 파일에 반영 후 jar 실행
 - Zero-Downtime 워크플로우 적용
 
 📌해당 코드 파일: [workflow.yml](.github/workflows/workflow.yml)
+
+### 5.모니터링
+- Prometheus(매트릭 수집)
+  - EC2 및 애플리케이션 상태를 모니터링하는 역할을 함
+- Grafana(대시보드)
+  - Prometheus에서 수집한 데이터를 시각화하는 역할을 함
+
 
 ## ✅ 디렉토리 구조
 
@@ -160,7 +166,7 @@ WebSocket과 STOMP 프로토콜을 적용하여 **실시간 양방향 통신**�
 
 ## ✅ 회고
 - Websocket,MongoDB,CI/CD를 공부하고 사용해보고 싶어서 만들어본 프로젝트입니다.
-더 많은 기능을 구현하고 싶었지만 프론트도 같이 작업을 해줘야해서 이정도까지만 하고 마칩니다.
+더 많은 기능을 구현할 수 있지만 프론트도 같이 작업을 해줘야해서 이정도까지만 하고 마칩니다.
 - 고민하고 시간이 걸렸던 부분
-  - thymeleaf 에서 SSR 방식을 사용하지 않고 fetch API를 이용해서 데이터를 삽입 방식
-  - CI/CD workflow 에서 application.yml 의 민감정보를 어떤식으로 넣어야할 지
+  - thymeleaf 에서 SSR 방식을 사용하지 않고 fetch API를 이용해서 데이터를 삽입하는 방식
+  - CI/CD workflow 에서 application.yml 의 민감정보를 어떤식으로 넣어야할 지 고민

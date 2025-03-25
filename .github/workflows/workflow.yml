@@ -5,7 +5,6 @@ on:
     branches:
       - main # 이 브랜치에 푸시하면 배포가 실행됨
 
-
 jobs:
   deploy:
     runs-on: ubuntu-24.04
@@ -96,6 +95,23 @@ jobs:
           NEW_PID=$!
           sleep 20  # 새 버전 시작 대기
           echo "✅ New version started on port 8081 with PID: $NEW_PID"
+          
+          # 헬스 체크 (8081 포트에서 실행 중일 때)
+          echo "Performing health check on port 8081..."
+          for i in {1..5}; do
+            if curl -s --fail ${HOST}:8081/actuator/health > /dev/null; then
+              echo "✅ Health check passed on port 8081"
+              break
+            else
+              echo "Health check attempt $i failed, retrying in 5 seconds..."
+              sleep 5
+            fi
+          done
+          if [ $i -eq 5 ]; then
+            echo "❌ Health check failed after 5 attempts on port 8081, terminating process..."
+            kill -9 $NEW_PID
+            exit 1
+          fi
           
           # 기존 8080 포트 프로세스 종료
           OLD_PID=$(ps aux | grep '[j]ava -jar /home/$USER/app/app.jar' | awk '{print $2}')
