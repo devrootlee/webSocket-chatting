@@ -140,7 +140,7 @@ jobs:
             # 새 버전을 8080 포트로 전환
             echo "Switching to port 8080..."
             kill -9 $NEW_PID  # 8081 프로세스 종료
-            rm app.log
+            rm app-new.log
             sleep 2 # 종료 대기
             mv /home/$USER/app/app-new.jar /home/$USER/app/app.jar
             nohup java -jar /home/$USER/app/app.jar > /home/$USER/app/app.log 2>&1 &
