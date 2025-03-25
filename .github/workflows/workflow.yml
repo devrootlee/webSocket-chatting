@@ -99,13 +99,18 @@ jobs:
           # 헬스 체크 (8081 포트에서 실행 중일 때)
           echo "Performing health check on port 8081..."
           for i in {1..5}; do
-            if curl -s --fail http://${HOST}:8081/actuator/health > /dev/null; then
+            echo "Health check attempt $i..."
+            curl -v "http://${HOST}:8081/actuator/health" > /home/$USER/app/health-check.log 2>&1
+            if [ $? -eq 0 ]; then
               echo "✅ Health check passed on port 8081"
+              cat /home/$USER/app/health-check.log
               break
             else
-              echo "Health check attempt $i failed, retrying in 5 seconds..."
+              echo "Health check attempt $i failed, response logged to /home/$USER/app/health-check.log"
+              cat /home/$USER/app/health-check.log
+              echo "Retrying in 5 seconds..."
               sleep 5
-            fi
+          fi
           done
           if [ $i -eq 5 ]; then
             echo "❌ Health check failed after 5 attempts on port 8081, terminating process..."
