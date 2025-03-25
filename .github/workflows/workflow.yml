@@ -147,6 +147,6 @@ jobs:
             sleep 10  # 8080 시작 대기
             echo "✅ Deployment successful on port 8080 with PID: $FINAL_PID"
             echo $FINAL_PID > /home/$USER/app/app.pid
-            rm app-new.log # 로그 삭제
+            rm /home/$USER/app/app-new.log # 로그 삭제
           EOF
           echo "✅ Deployment finished"
