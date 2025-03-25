@@ -33,6 +33,14 @@ dependencies {
     implementation 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
+    //swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-common:2.5.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+
+    //monitoring
+    implementation 'org.springframework.boot:spring-boot-starter-actuator' //actuator
+    implementation 'io.micrometer:micrometer-registry-prometheus' //prometheus
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 

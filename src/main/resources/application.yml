@@ -30,5 +30,24 @@ logging:
 #jwt
 jwt:
   secret:
-      key: ${JWT_SECRET_KEY}
-      expiration-time: ${JWT_SECRET_EXPIRATIONTIME}
+    key: ${JWT_SECRET_KEY}
+    expiration-time: ${JWT_SECRET_EXPIRATIONTIME}
+
+#swagger
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  api-docs:
+    path: /v3/api-docs
+
+#monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus #활성화할 엔드포인트
+  prometheus:
+    metrics:
+      export:
+        enabled: true #metric 활성화

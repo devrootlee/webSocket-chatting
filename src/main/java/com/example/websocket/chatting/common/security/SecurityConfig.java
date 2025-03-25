@@ -22,9 +22,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/error","/login", "/register", "/css/**").permitAll() //인증필요없는 화면
-                        .requestMatchers(HttpMethod.GET, "/health","/checkNickname", "loginStatus").permitAll() //[GET] rest api
-                        .requestMatchers(HttpMethod.POST, "/register", "/login").permitAll() //[POST] rest api
+                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html","/v3/api-docs", "/v3/api-docs.yaml", "/v3/api-docs.json").permitAll() //swagger
+                        .requestMatchers("/","/error","/login","/register","/css/**").permitAll() //인증필요없는 화면
+                        .requestMatchers(HttpMethod.GET,"/checkNickname","loginStatus").permitAll() //[GET] 인증필요없느 rest api
+                        .requestMatchers(HttpMethod.POST, "/register", "/login").permitAll() //[POST] 인증필요없는 rest api
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // 필터 추가
                 .exceptionHandling(exception -> exception
