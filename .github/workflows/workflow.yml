@@ -76,7 +76,7 @@ jobs:
           echo "✅ File transfer completed"
 
           # EC2 연결
-          ssh -i private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $USER@$HOST << 'EOF' || { echo "❌ssh failed"; exit 1; }
+          ssh -i private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $USER@$HOST << "EOF" || { echo "❌ssh failed"; exit 1; }
             echo "✅SSH connection successful"
           
           # 환경 변수 설정 (민감 정보 설정)
@@ -97,7 +97,7 @@ jobs:
           echo "✅ New version started on port 8081 with PID: $NEW_PID"
           
           # 헬스 체크 (8081 포트에서 실행 중일 때)
-          echo "Performing health check on port 8081..."
+          echo "Performing health check on port 8081 with HOST: $HOST..."
           for i in {1..5}; do
             echo "Health check attempt $i..."
             curl -v "http://${HOST}:8081/actuator/health" > /home/$USER/app/health-check.log 2>&1
